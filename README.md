@@ -46,7 +46,6 @@ To make all text in your app responsive, wrap your `MaterialApp` with `Responsiv
 
 ```dart
 // filepath: lib/main.dart
-// filepath: lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:responsive_scaler/responsive_scaler.dart';
 
@@ -157,6 +156,8 @@ Row(
 ### 4. Pre-defined Text Styles
 
 The package includes a set of Material 3-aligned text styles in `AppTextStyles`. Using these helps maintain a consistent look and feel. Since text scaling is automatic, you use them just like you normally would.
+
+For a detailed guide on all available styles and their use cases, see the [AppTextStyles Guide](AppTextStylesGuide.md).
 
 ```dart
 import 'package:responsive_scaler/responsive_scaler.dart';
