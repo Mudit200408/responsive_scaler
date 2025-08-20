@@ -46,6 +46,7 @@ To make all text in your app responsive, wrap your `MaterialApp` with `Responsiv
 
 ```dart
 // filepath: lib/main.dart
+// filepath: lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:responsive_scaler/responsive_scaler.dart';
 
@@ -54,17 +55,12 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Responsive App',
-      // Add the builder here
-      builder: (context, child) {
-        // Wrap the child with the ResponsiveScaler
-        return ResponsiveScaler.scale(
-          context: context,
-          child: child!,
-        );
-      },
-      home: MyHomePage(),
+    // Wrap your app with ResponsiveApp for automatic scaling
+    return ResponsiveApp(
+      builder: (context) => MaterialApp(
+        title: 'Responsive App',
+        home: MyHomePage(),
+      ),
     );
   }
 }
@@ -77,6 +73,20 @@ class MyApp extends StatelessWidget {
 Text(
   'This is a headline',
   style: AppTextStyles.headlineMedium, // Your existing text styles work perfectly
+)
+```
+
+The scaling also applies to any `Text` widget, even if you define the `TextStyle` inline:
+
+```dart
+// Even with a manually defined TextStyle, it just works.
+Text(
+  'Some other text',
+  style: TextStyle(
+    fontSize: 16, // This will be scaled automatically
+    color: Colors.blue,
+    fontWeight: FontWeight.bold,
+  ),
 )
 ```
 
