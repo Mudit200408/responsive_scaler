@@ -1,36 +1,40 @@
 import 'package:flutter/material.dart';
 
-/// Material 3–aligned scale manager for text, icons, and SVGs.
-/// Respects system accessibility scaling.
-class ScaleManager {
+class ResponsiveScaler {
+  /// Get responsive scale factor based on screen width
   static double getScaleFactor(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-
-    // Material 3 breakpoint-inspired scaling
-    if (width < 360) return 0.85; // very small phones
-    if (width < 600) return 1.0;  // phones
-    if (width < 840) return 1.05; // tablets portrait
-    if (width < 1200) return 1.1; // tablets landscape / small desktop
-    return 1.15;                  // desktop / large screens
+    
+    // More granular breakpoints
+    if (width <= 320) return 0.8;   // very small phones
+    if (width <= 375) return 0.9;   // small phones
+    if (width <= 414) return 1.0;   // regular phones
+    if (width <= 768) return 1.1;   // large phones/small tablets
+    if (width <= 1024) return 1.2;  // tablets
+    if (width <= 1440) return 1.3;  // small desktop
+    return 1.4;                     // large desktop
   }
 
-  /// Apply global scaling to MaterialApp, preserving system accessibility scaling
-  static Widget applyGlobalScaling(BuildContext context, Widget child) {
-    final mq = MediaQuery.of(context);
-    final customScale = getScaleFactor(context);
-
+  /// Wrap your app with this for automatic scaling
+  static Widget scale({
+    required BuildContext context,
+    required Widget child,
+    bool preserveAccessibility = true,
+  }) {
+    final mediaQuery = MediaQuery.of(context);
+    final scaleFactor = getScaleFactor(context);
+    
     return MediaQuery(
-      data: mq.copyWith(
-        textScaler: TextScaler.linear(
-          customScale * mq.textScaler.scale(1.0), // combine custom + system scale
-        ),
+      data: mediaQuery.copyWith(
+        textScaler: preserveAccessibility 
+          ? TextScaler.linear(scaleFactor * mediaQuery.textScaler.scale(1.0))
+          : TextScaler.linear(scaleFactor),
       ),
       child: child,
     );
   }
 }
 
-/// Extension for easy scale access
 extension ResponsiveContext on BuildContext {
-  double get scaleFactor => ScaleManager.getScaleFactor(this);
+  double get scaleFactor => ResponsiveScaler.getScaleFactor(this);
 }
