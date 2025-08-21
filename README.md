@@ -1,4 +1,4 @@
-# Responsive Scaler
+# Responsive Scaler (BETA)
 
 [![pub version](https://img.shields.io/pub/v/responsive_scaler.svg)](https://pub.dev/packages/responsive_scaler)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -129,7 +129,7 @@ Column(
 )
 ```
 
-### Pre-defined Text Styles
+## Pre-defined Text Styles
 
 The package includes a set of Material 3-aligned text styles in `AppTextStyles`. Using these helps maintain a consistent look and feel. Since text scaling is automatic, you use them just like you normally would.
 

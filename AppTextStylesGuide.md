@@ -63,3 +63,22 @@ Label styles are used for utility text inside components like buttons, navigatio
 | `labelLarge` | 14 | `w500` (Medium) | Text inside large buttons. |
 | `labelMedium` | 12 | `w500` (Medium) | Text inside standard buttons, navigation bar items. |
 | `labelSmall` | 11 | `w500` (Medium) | Text for small buttons, chips, or overline text. |
+
+---
+
+## Custom Weight-Based Styles
+
+For situations where the pre-defined styles don't fit, you can use these helper methods to create a `TextStyle` with a specific font weight. You provide the `fontSize` you want, and the method applies the correct weight.
+
+**Note:** The `fontSize` you provide to these methods will still be scaled automatically by the `ResponsiveScaler` package.
+
+| Method Name | Font Weight | Example Usage |
+| :--- | :--- | :--- |
+| `thin(size)` | `w100` (Thin) | `AppTextStyles.thin(20)` |
+| `extraLight(size)` | `w200` (Extra Light) | `AppTextStyles.extraLight(20)` |
+| `light(size)` | `w300` (Light) | `AppTextStyles.light(20)` |
+| `regular(size)` | `w400` (Regular) | `AppTextStyles.regular(16)` |
+| `medium(size)` | `w500` (Medium) | `AppTextStyles.medium(16)` |
+| `semiBold(size)` | `w600` (Semi-Bold) | `AppTextStyles.semiBold(18)` |
+| `bold(size)` | `w700` (Bold) | `AppTextStyles.bold(18)` |
+| `extraBold(size)` | `w800` (Extra Bold) | `AppTextStyles.extraBold(22)
