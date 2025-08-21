@@ -168,4 +168,19 @@ Text(
 )
 ```
 
+#### Customizing Styles with `copyWith`
+
+Need to change the color or make a specific text bold? You can easily customize the pre-defined styles using the `.copyWith()` method. This gives you full control while reusing the base font size and weight.
+
+```dart
+Text(
+  'This is an important title!',
+  // Start with a base style and then customize it
+  style: AppTextStyles.titleLarge.copyWith(
+    color: Colors.deepPurple,
+    fontWeight: FontWeight.w900, // Make it extra bold
+  ),
+)
+```
+
 Enjoy building beautifully responsive apps with less effort!
