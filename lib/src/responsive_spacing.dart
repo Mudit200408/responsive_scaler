@@ -12,8 +12,6 @@ class ResponsiveSpacing {
       MediaQuery.of(context).size.height * 0.02;
   static double heightExtraLarge(BuildContext context) =>
       MediaQuery.of(context).size.height * 0.03;
-  static double heightBottomNavBar(BuildContext context) =>
-      MediaQuery.of(context).size.height * 0.06;
 
   // Width-based spacing
   static double widthExtraSmall(BuildContext context) =>

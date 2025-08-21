@@ -3,6 +3,16 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:responsive_scaler/responsive_scaler.dart';
 
 void main() {
+  // 1. Initialize the scaler with your app's design width before running the app.
+  // For example, if your UI was designed on a device with a width of 390px.
+  ResponsiveScaler.init(
+    designWidth: 390,
+    // Optional: You can also set min and max scale factors.
+    // minScale: 0.8,
+    // maxScale: 1.2,
+    maxAccessibilityScale: 1.2,
+  );
+
   runApp(const MyApp());
 }
 
@@ -11,13 +21,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Wrap your MaterialApp with ResponsiveApp for automatic scaling.
-    return ResponsiveApp(
-      builder: (context) => MaterialApp(
-        title: 'Responsive Scaler Example',
-        theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
-        home: const MyHomePage(),
-      ),
+    // 2. Use the MaterialApp.builder to apply scaling to the entire app.
+    return MaterialApp(
+      title: 'Responsive Scaler Example',
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
+      builder: (context, child) {
+        // The scale method now reads the global config set in main().
+        return ResponsiveScaler.scale(context: context, child: child!);
+      },
+      home: const MyHomePage(),
     );
   }
 }
@@ -78,14 +90,14 @@ class MyHomePage extends StatelessWidget {
               SizedBox(width: ResponsiveSpacing.widthLarge(context)),
 
               // --- Responsive SVG ---
-              // Note: Requires flutter_svg package and an asset in assets/flutter_logo.svg
+              // Note: Requires flutter_svg package and an asset in assets/star.svg
               Column(
                 children: [
                   const Text("SVG", style: AppTextStyles.labelMedium),
                   SizedBox(height: ResponsiveSpacing.heightExtraSmall(context)),
                   SvgPicture.asset(
                     'assets/star.svg',
-                    width: scaledSize(context, 50),
+                    width: scaledSize(context, 100),
                   ),
                 ],
               ),
