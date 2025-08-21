@@ -1,13 +1,17 @@
-# Responsive Scaler
+# Responsive Scaler (BETA)
 
 [![pub version](https://img.shields.io/pub/v/responsive_scaler.svg)](https://pub.dev/packages/responsive_scaler)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 A Flutter package that offers a simple, automatic, and boilerplate-free way to make your app's UI (text, icons, spacing) responsive across different screen sizes.
 
+---
+
 ## Why Responsive Scaler?
 
-Ever feel like making your app responsive involves too much setup? Many solutions, like `screen_util`, are powerful but require you to wrap every single value with special units (`.sp`, `.w`, `.h`). This can add a lot of boilerplate and make your code harder to read.
+Ever feel like making your app responsive involves too much setup?  
+Many solutions, like `screen_util`, are powerful but require you to wrap every single value with special units (`.sp`, `.w`, `.h`).  
+Others like `responsive_framework` rely on breakpoint-based scaling, which can cause sudden jumps in size.
 
 **Responsive Scaler takes a different approach:**
 
@@ -16,6 +20,21 @@ Ever feel like making your app responsive involves too much setup? Many solution
 *   **Smooth, Linear Scaling:** No jarring jumps between breakpoints. UI elements scale smoothly as the screen size changes.
 *   **Respects Accessibility:** Automatically honors the user's system-level font size settings while providing a safeguard against excessively large text.
 *   **Easy Integration:** Designed to be dropped into existing production apps with minimal code changes.
+
+---
+
+## 📊 Comparison with Other Packages
+
+| Feature | **Responsive Scaler (yours)** | **ScreenUtil** | **Responsive Framework** |
+|---------|-------------------------------|----------------|---------------------------|
+| **Text Scaling** | ✅ Automatic for all `Text` widgets (no boilerplate) | ❌ Manual (`16.sp`) everywhere | ⚠️ Depends on breakpoints, not automatic |
+| **Design Width** | ✅ Developer defines once (`designWidth`) | ✅ Developer defines (`designSize`) | ❌ Breakpoints only (no single baseline) |
+| **Boilerplate** | ✅ Minimal (init once, wrap MaterialApp) | ❌ High (every value wrapped) | ⚠️ Medium (must define breakpoints, wrap UI in `ResponsiveWrapper`) |
+| **Scaling Style** | ✅ Smooth linear scaling | ✅ Linear scaling but manual | ❌ Breakpoint jumps (sizes change in steps) |
+| **Accessibility Respect** | ✅ Built-in (`TextScaler` honors system font scaling + clamp) | ❌ Developer must handle manually | ⚠️ Limited (breakpoints don’t always sync with accessibility) |
+| **Use Case** | Apps that want **drop-in, automatic responsiveness** with no boilerplate | Fine-grained control for every pixel, but very verbose | Apps where you want **different layouts at fixed screen widths** |
+
+---
 
 ## Installation
 
@@ -129,7 +148,7 @@ Column(
 )
 ```
 
-### Pre-defined Text Styles
+## Pre-defined Text Styles
 
 The package includes a set of Material 3-aligned text styles in `AppTextStyles`. Using these helps maintain a consistent look and feel. Since text scaling is automatic, you use them just like you normally would.
 
