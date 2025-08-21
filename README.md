@@ -34,7 +34,7 @@ Then, run `flutter pub get` in your terminal.
 
 In your `lib/main.dart` file, call `ResponsiveScaler.init()` **before** `runApp()`. This is the most important step.
 
-Provide the `designWidth` of the device you are basing your UI on. For example, if you are designing on a Figma file that uses an iPhone 14 Pro frame, its width is `393`.
+Provide the `designWidth` of the device you are basing your UI on. For example, if you are making and testing the app on Pixel 9 which has a width of `412`.
 
 ```dart
 // filepath: lib/main.dart
