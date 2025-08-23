@@ -1,4 +1,4 @@
-# Responsive Scaler (BETA)
+# Responsive Scaler
 
 [![pub version](https://img.shields.io/pub/v/responsive_scaler.svg)](https://pub.dev/packages/responsive_scaler)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
