@@ -1,4 +1,4 @@
-# Responsive Scaler (BETA)
+# Responsive Scaler
 
 [![pub version](https://img.shields.io/pub/v/responsive_scaler.svg)](https://pub.dev/packages/responsive_scaler)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -7,7 +7,7 @@ A Flutter package that offers a simple, automatic, and boilerplate-free way to m
 
 ---
 
-## Why Responsive Scaler?
+## 🚀 Why Responsive Scaler?
 
 Ever feel like making your app responsive involves too much setup?  
 Many solutions, like `screen_util`, are powerful but require you to wrap every single value with special units (`.sp`, `.w`, `.h`).  
@@ -25,14 +25,200 @@ Others like `responsive_framework` rely on breakpoint-based scaling, which can c
 
 ## 📊 Comparison with Other Packages
 
-| Feature | **Responsive Scaler (yours)** | **ScreenUtil** | **Responsive Framework** |
+| Feature | **Responsive Scaler** | **ScreenUtil** | **Responsive Framework** |
 |---------|-------------------------------|----------------|---------------------------|
-| **Text Scaling** | ✅ Automatic for all `Text` widgets (no boilerplate) | ❌ Manual (`16.sp`) everywhere | ⚠️ Depends on breakpoints, not automatic |
+| **Text Scaling** | ✅ Automatic for all `Text` widgets (no boilerplate) | ❌ Manual (`16.sp`) everywhere | ⚠️ Breakpoints only (not automatic) |
 | **Design Width** | ✅ Developer defines once (`designWidth`) | ✅ Developer defines (`designSize`) | ❌ Breakpoints only (no single baseline) |
-| **Boilerplate** | ✅ Minimal (init once, wrap MaterialApp) | ❌ High (every value wrapped) | ⚠️ Medium (must define breakpoints, wrap UI in `ResponsiveWrapper`) |
-| **Scaling Style** | ✅ Smooth linear scaling | ✅ Linear scaling but manual | ❌ Breakpoint jumps (sizes change in steps) |
-| **Accessibility Respect** | ✅ Built-in (`TextScaler` honors system font scaling + clamp) | ❌ Developer must handle manually | ⚠️ Limited (breakpoints don’t always sync with accessibility) |
-| **Use Case** | Apps that want **drop-in, automatic responsiveness** with no boilerplate | Fine-grained control for every pixel, but very verbose | Apps where you want **different layouts at fixed screen widths** |
+| **Boilerplate** | ✅ Minimal (init once, wrap MaterialApp) | ❌ High (every value wrapped) | ⚠️ Medium (define breakpoints, wrap UI in `ResponsiveWrapper`) |
+| **Scaling Style** | ✅ Smooth linear scaling | ✅ Linear scaling but manual | ❌ Step jumps at breakpoints |
+| **Accessibility Respect** | ✅ Built-in (`TextScaler` + clamp) | ❌ Developer must handle manually | ⚠️ Limited (breakpoints don't always sync with accessibility) |
+| **Best Use Case** | Apps that want **drop-in, automatic responsiveness** | Pixel-perfect manual scaling | Apps with **different layouts per screen width** |
+
+---
+
+## 🌟 The One-Shot Combo: Scaler + Framework
+
+`responsive_scaler` handles **scaling of text, icons, and spacing** automatically.  
+`responsive_framework` handles **layout changes at breakpoints** (like moving widgets around, showing sidebars, or swapping grids).
+
+**Together, they cover *both sides of responsiveness*:**  
+
+✅ **Scaler** = Smooth scaling for text, icons, and spacing  
+✅ **Framework** = Adaptive layouts at breakpoints  
+
+### Example: Responsive Login Page
+
+Here's how the combo shines in a real-world layout.
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:responsive_framework/responsive_framework.dart';
+import 'package:responsive_scaler/responsive_scaler.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  ResponsiveScaler.init(designWidth: 390, maxAccessibilityScale: 1.5);
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Responsive Login Demo',
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
+      builder: (context, child) {
+        final scaledChild = ResponsiveScaler.scale(
+          context: context,
+          child: child!,
+        );
+
+        return ResponsiveBreakpoints.builder(
+          breakpoints: [
+            const Breakpoint(start: 0, end: 450, name: MOBILE),
+            const Breakpoint(start: 451, end: 800, name: TABLET),
+            const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+          ],
+          child: scaledChild,
+        );
+      },
+      home: const LoginPage(),
+    );
+  }
+}
+
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    bool isMobile = ResponsiveBreakpoints.of(context).smallerThan(TABLET);
+
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.all(ResponsiveSpacing.widthLarge(context)),
+            child: ResponsiveRowColumn(
+              layout: isMobile
+                  ? ResponsiveRowColumnType.COLUMN
+                  : ResponsiveRowColumnType.ROW,
+              rowMainAxisAlignment: MainAxisAlignment.center,
+              columnCrossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Illustration
+                ResponsiveRowColumnItem(
+                  rowFlex: 1,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: isMobile
+                          ? ResponsiveSpacing.heightLarge(context)
+                          : 0,
+                      right: isMobile
+                          ? 0
+                          : ResponsiveSpacing.widthLarge(context),
+                    ),
+                    child: SvgPicture.asset(
+                      "assets/login_illustration.svg",
+                      height: isMobile
+                          ? scaledSize(context, 100)
+                          : scaledSize(context, 200),
+                    ),
+                  ),
+                ),
+
+                // Login Form
+                ResponsiveRowColumnItem(
+                  rowFlex: 1,
+                  child: _buildLoginForm(context),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoginForm(BuildContext context) {
+    return SingleChildScrollView(
+      child: Container(
+        padding: EdgeInsets.all(ResponsiveSpacing.widthMedium(context)),
+        //constraints: const BoxConstraints(maxWidth: 400),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text("Welcome Back 👋", style: AppTextStyles.headlineMedium),
+            SizedBox(height: ResponsiveSpacing.heightMedium(context)),
+
+            // Email
+            TextField(
+              decoration: InputDecoration(
+                labelText: "Email",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            SizedBox(height: ResponsiveSpacing.heightMedium(context)),
+
+            // Password
+            TextField(
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: "Password",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            SizedBox(height: ResponsiveSpacing.heightLarge(context)),
+
+            // Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(
+                    vertical: ResponsiveSpacing.heightMedium(context),
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text("Login", style: AppTextStyles.bodyLarge),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+**What happens here:**
+- **Responsive Framework** changes the layout from column (mobile) to row (desktop)
+- **Responsive Scaler** ensures all text, icons, and spacing scale smoothly on every screen size
+- **Best of both worlds:** Layout adaptation + automatic scaling
 
 ---
 
@@ -178,7 +364,6 @@ Text(
 )
 ```
 
-
 ## How It Works (Under the Hood)
 
 The logic is based on a simple, powerful idea: calculate a single scale factor and apply it consistently.
@@ -224,5 +409,4 @@ And you want an icon with a base size of `30`.
 
 *   **For Text:** The `ResponsiveScaler.scale()` widget wraps your app in a new `MediaQuery`. It creates a custom `TextScaler` by first multiplying the clamped `finalScale` with the user's system accessibility font size. To prevent text from becoming unreadably large, this **combined value is then clamped again** using the `maxAccessibilityScale` you provided in `init()`. This final, safe value is used to draw all `Text` widgets.
 
-*   **For Icons and Sizes:** When you call `scaledSize(context, 50)`, it simply fetches the same clamped `finalScale` and returns `50 * finalScale`. This guarantees that your icons and spacing scale with the exact same logic as your text.
-
+*   **For Icons and Sizes:** When you call `scaledSize(context, 50)`, it simply fetches the same clamped `finalScale` and returns `50 * finalScale`. This guarantees that your icons and spacing scale with the exact same logic as your

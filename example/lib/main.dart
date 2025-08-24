@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:responsive_scaler/responsive_scaler.dart';
 
 void main() {
-  // 1. Initialize the scaler with your app's design width before running the app.
-  // For example, if your UI was designed on a device with a width of 390px.
-  ResponsiveScaler.init(
-    designWidth: 390,
-    // Optional: You can also set min and max scale factors.
-    // minScale: 0.8,
-    // maxScale: 1.2,
-    maxAccessibilityScale: 1.5,
-  );
+  WidgetsFlutterBinding.ensureInitialized();
+
+  ResponsiveScaler.init(designWidth: 390, maxAccessibilityScale: 1.5);
 
   runApp(const MyApp());
 }
@@ -21,312 +16,146 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 2. Use the MaterialApp.builder to apply scaling to the entire app.
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Responsive Scaler Example',
+      title: 'Responsive Login Demo',
       theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
       builder: (context, child) {
-        // The scale method now reads the global config set in main().
-        return ResponsiveScaler.scale(context: context, child: child!);
+        final scaledChild = ResponsiveScaler.scale(
+          context: context,
+          child: child!,
+        );
+
+        return ResponsiveBreakpoints.builder(
+          breakpoints: [
+            const Breakpoint(start: 0, end: 450, name: MOBILE),
+            const Breakpoint(start: 451, end: 800, name: TABLET),
+            const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+          ],
+          child: scaledChild,
+        );
       },
-      home: const MyHomePage(),
+      home: const LoginPage(),
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    bool isMobile = ResponsiveBreakpoints.of(context).smallerThan(TABLET);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Responsive Scaler Demo')),
-      body: ListView(
-        // Using responsive padding for the whole list
+      body: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.all(ResponsiveSpacing.widthLarge(context)),
+            child: ResponsiveRowColumn(
+              layout: isMobile
+                  ? ResponsiveRowColumnType.COLUMN
+                  : ResponsiveRowColumnType.ROW,
+              rowMainAxisAlignment: MainAxisAlignment.center,
+              columnCrossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Illustration
+                ResponsiveRowColumnItem(
+                  rowFlex: 1,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: isMobile
+                          ? ResponsiveSpacing.heightLarge(context)
+                          : 0,
+                      right: isMobile
+                          ? 0
+                          : ResponsiveSpacing.widthLarge(context),
+                    ),
+                    child: SvgPicture.asset(
+                      "assets/login_illustration.svg",
+                      height: isMobile
+                          ? scaledSize(context, 100)
+                          : scaledSize(context, 200),
+                    ),
+                  ),
+                ),
+
+                // Login Form
+                ResponsiveRowColumnItem(
+                  rowFlex: 1,
+                  child: _buildLoginForm(context),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoginForm(BuildContext context) {
+    return SingleChildScrollView(
+      child: Container(
         padding: EdgeInsets.all(ResponsiveSpacing.widthMedium(context)),
-        children: [
-          // --- Text Example (with AppTextStyles) ---
-          Container(
-            padding: EdgeInsets.all(ResponsiveSpacing.widthMedium(context)),
-            decoration: BoxDecoration(
-              color: Colors.yellow.shade50,
-              borderRadius: BorderRadius.circular(12),
+        //constraints: const BoxConstraints(maxWidth: 400),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 12,
+              offset: const Offset(0, 6),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Radhe Radhe',
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.headlineMedium,
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text("Welcome Back 👋", style: AppTextStyles.headlineMedium),
+            SizedBox(height: ResponsiveSpacing.heightMedium(context)),
+
+            // Email
+            TextField(
+              decoration: InputDecoration(
+                labelText: "Email",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                SizedBox(width: ResponsiveSpacing.widthMedium(context)),
-                SvgPicture.asset(
-                  'assets/star.svg',
-                  width: AppIconSizes.size32(context),
-                  height: AppIconSizes.size32(context),
-                ),
-              ],
+              ),
             ),
-          ),
+            SizedBox(height: ResponsiveSpacing.heightMedium(context)),
 
-          // --- Responsive Spacing (SizedBox) ---
-          SizedBox(height: ResponsiveSpacing.heightMedium(context)),
-
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(
-                    ResponsiveSpacing.widthSmall(context),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    'Body Small',
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.bodySmall,
-                  ),
+            // Password
+            TextField(
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: "Password",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                SizedBox(width: ResponsiveSpacing.heightMedium(context)),
-                Container(
-                  padding: EdgeInsets.all(
-                    ResponsiveSpacing.widthSmall(context),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    'Body Medium',
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.bodyMedium,
-                  ),
-                ),
-                SizedBox(width: ResponsiveSpacing.heightMedium(context)),
-                Container(
-                  padding: EdgeInsets.all(
-                    ResponsiveSpacing.widthSmall(context),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    'Body Large',
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.bodyLarge,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-          SizedBox(height: ResponsiveSpacing.heightMedium(context)),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(
-                    ResponsiveSpacing.widthSmall(context),
+            SizedBox(height: ResponsiveSpacing.heightLarge(context)),
+
+            // Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(
+                    vertical: ResponsiveSpacing.heightMedium(context),
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Text(
-                    'Title Small',
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.titleSmall,
-                  ),
                 ),
-                SizedBox(width: ResponsiveSpacing.heightMedium(context)),
-                Container(
-                  padding: EdgeInsets.all(
-                    ResponsiveSpacing.widthSmall(context),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    'Title Medium',
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.titleMedium,
-                  ),
-                ),
-                SizedBox(width: ResponsiveSpacing.heightMedium(context)),
-                Container(
-                  padding: EdgeInsets.all(
-                    ResponsiveSpacing.widthSmall(context),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    'Title Large',
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.titleLarge,
-                  ),
-                ),
-              ],
+                child: Text("Login", style: AppTextStyles.bodyLarge),
+              ),
             ),
-          ),
-          SizedBox(height: ResponsiveSpacing.heightMedium(context)),
-
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(
-                    ResponsiveSpacing.widthSmall(context),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    'Headline Small',
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.headlineSmall,
-                  ),
-                ),
-                SizedBox(width: ResponsiveSpacing.heightMedium(context)),
-                Container(
-                  padding: EdgeInsets.all(
-                    ResponsiveSpacing.widthSmall(context),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    'Headline Medium',
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.headlineMedium,
-                  ),
-                ),
-                SizedBox(width: ResponsiveSpacing.heightMedium(context)),
-                Container(
-                  padding: EdgeInsets.all(
-                    ResponsiveSpacing.widthSmall(context),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    'Headline Large',
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.headlineLarge,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          SizedBox(height: ResponsiveSpacing.heightMedium(context)),
-
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () {},
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Label Small',
-                        style: AppTextStyles.labelSmall.copyWith(
-                          color: Colors.blue,
-                        ),
-                      ),
-                      SizedBox(width: ResponsiveSpacing.widthSmall(context)),
-                      Icon(
-                        Icons.arrow_forward_ios,
-                        color: Colors.blue,
-                        size: AppIconSizes.size12(context),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: ResponsiveSpacing.widthSmall(context)),
-                ElevatedButton(
-                  onPressed: () {},
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Label Medium',
-                        style: AppTextStyles.labelMedium.copyWith(
-                          color: Colors.blue,
-                        ),
-                      ),
-                      SizedBox(width: ResponsiveSpacing.widthSmall(context)),
-
-                      Icon(
-                        Icons.arrow_forward_ios,
-                        color: Colors.blue,
-                        size: AppIconSizes.size12(context),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: ResponsiveSpacing.widthSmall(context)),
-                ElevatedButton(
-                  onPressed: () {},
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Label Large',
-                        style: AppTextStyles.labelLarge.copyWith(
-                          color: Colors.blue,
-                        ),
-                      ),
-                      SizedBox(width: ResponsiveSpacing.widthSmall(context)),
-                      Icon(
-                        Icons.arrow_forward_ios,
-                        color: Colors.blue,
-                        size: AppIconSizes.size12(context),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          SizedBox(height: ResponsiveSpacing.heightLarge(context)),
-
-          // --- Extra Variants with all weights ---
-          Text("Thin Font", style: AppTextStyles.thin(16)),
-          Text("Extra Light Font", style: AppTextStyles.extraLight(16)),
-          Text("Light Font", style: AppTextStyles.light(16)),
-          Text("Regular Font", style: AppTextStyles.regular(16)),
-          Text("Medium Font", style: AppTextStyles.medium(16)),
-          Text("Semi Bold Font", style: AppTextStyles.semiBold(16)),
-          Text("Bold Font", style: AppTextStyles.bold(16)),
-          Text("Extra Bold Font", style: AppTextStyles.extraBold(16)),
-          Text("Black Font", style: AppTextStyles.black(16)),
-        ],
+          ],
+        ),
       ),
     );
   }
