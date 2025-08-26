@@ -1,15 +1,29 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
+/// A utility class that provides automatic responsive scaling for Flutter apps.
+///
+/// This class enables automatic text scaling and provides screen dimension data
+/// for responsive UI components without requiring manual wrapping of every widget.
 class ResponsiveScaler {
   // Global configuration variables, set once at app start.
   static double? _designWidth;
   static double _minScale = 0.8;
-  static double _maxScale = 1.8;
+  static double _maxScale = 1.4;
   static double _maxAccessibilityScale = 2.0;
 
+  static double screenWidth = 0;
+  static double screenHeight = 0;
+  static double scaleFactor = 0;
+
   /// Initializes the ResponsiveScaler with your app's design specifications.
+  ///
   /// This must be called once in your main() function before runApp().
+  ///
+  /// [designWidth] The width in pixels that your UI was designed for (e.g., 390 for iPhone 12)
+  /// [minScale] Minimum scaling factor to prevent text from becoming too small (default: 0.8)
+  /// [maxScale] Maximum scaling factor to prevent text from becoming too large (default: 1.4)
+  /// [maxAccessibilityScale] Maximum scale when accessibility settings are considered (default: 1.8)
   static void init({
     required double designWidth,
     double minScale = 0.8,
@@ -22,21 +36,13 @@ class ResponsiveScaler {
     _maxAccessibilityScale = maxAccessibilityScale;
   }
 
-  /// Calculates the responsive scale factor based on the current screen width.
-  static double getScaleFactor(BuildContext context) {
-    assert(
-      _designWidth != null,
-      'ResponsiveScaler.init() must be called before using scaleFactor! Call it in your main() function.',
-    );
-
-    final currentWidth = MediaQuery.of(context).size.width;
-    final scale = currentWidth / _designWidth!;
-
-    // Clamp the scale factor to the defined min and max values.
-    return min(_maxScale, max(_minScale, scale));
-  }
-
   /// A widget builder that applies automatic scaling to all descendant Text widgets.
+  ///
+  /// Wrap your app's root widget with this method to enable automatic text scaling.
+  ///
+  /// [context] The build context
+  /// [child] The widget tree to apply scaling to
+  /// [preserveAccessibility] Whether to respect system accessibility text scaling (default: true)
   static Widget scale({
     required BuildContext context,
     required Widget child,
@@ -44,25 +50,30 @@ class ResponsiveScaler {
   }) {
     assert(
       _designWidth != null,
-      'ResponsiveScaler.init() must be called before using scale()! Call it in your main() function.',
+      'ResponsiveScaler.init() must be called!',
     );
 
     final mediaQuery = MediaQuery.of(context);
-    final scaleFactor = getScaleFactor(context);
 
+    // --- KEY CHANGE: Capture and store screen data statically ---
+    screenWidth = mediaQuery.size.width;
+    screenHeight = mediaQuery.size.height;
+    final rawScale = screenWidth / _designWidth!;
+
+    // Use a local variable for calculations within this method for clarity.
+    final localScaleFactor = min(_maxScale, max(_minScale, rawScale));
+
+    // Update the static variable for external helpers to use.
+    scaleFactor = localScaleFactor;
+
+    // The rest of your existing scale() method logic for TextScaler...
     final TextScaler textScaler;
-
     if (preserveAccessibility) {
-      // Calculate the combined scale from responsive factor and system accessibility.
-      final combinedScale = scaleFactor * mediaQuery.textScaler.scale(1.0);
-
-      // Clamp the final combined scale using the value set in init().
+      final combinedScale = localScaleFactor * mediaQuery.textScaler.scale(1.0);
       final clampedCombinedScale = min(_maxAccessibilityScale, combinedScale);
-
       textScaler = TextScaler.linear(clampedCombinedScale);
     } else {
-      // If not preserving accessibility, just use the responsive scale factor.
-      textScaler = TextScaler.linear(scaleFactor);
+      textScaler = TextScaler.linear(localScaleFactor);
     }
 
     return MediaQuery(
@@ -70,10 +81,4 @@ class ResponsiveScaler {
       child: child,
     );
   }
-}
-
-/// Extension on BuildContext to easily access the scale factor for manual scaling.
-extension ResponsiveContext on BuildContext {
-  /// The current responsive scale factor, clamped by min/maxScale.
-  double get scaleFactor => ResponsiveScaler.getScaleFactor(this);
 }

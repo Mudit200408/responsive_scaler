@@ -1,16 +1,16 @@
-# example
+# Responsive Scaler Example
 
-A new Flutter project.
+This example demonstrates how to use the `responsive_scaler` package to create responsive UIs with automatic text scaling and responsive icons/spacing.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+1. Run `flutter pub get`
+2. Run `flutter run`
 
-A few resources to get you started if this is your first Flutter project:
+## What This Example Shows
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Automatic text scaling for all Text widgets
+- Responsive icon sizes
+- Responsive spacing
+- Integration with responsive_framework for layout changes
+- Material 3 text styles

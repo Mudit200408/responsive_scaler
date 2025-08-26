@@ -104,7 +104,7 @@ class LoginPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Center(
           child: Padding(
-            padding: EdgeInsets.all(ResponsiveSpacing.widthLarge(context)),
+            padding: EdgeInsets.all(ResponsiveSpacing.wLarge),
             child: ResponsiveRowColumn(
               layout: isMobile
                   ? ResponsiveRowColumnType.COLUMN
@@ -118,17 +118,17 @@ class LoginPage extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.only(
                       bottom: isMobile
-                          ? ResponsiveSpacing.heightLarge(context)
+                          ? ResponsiveSpacing.hLarge
                           : 0,
                       right: isMobile
                           ? 0
-                          : ResponsiveSpacing.widthLarge(context),
+                          : ResponsiveSpacing.wLarge,
                     ),
                     child: SvgPicture.asset(
                       "assets/login_illustration.svg",
                       height: isMobile
-                          ? scaledSize(context, 100)
-                          : scaledSize(context, 200),
+                          ? scaled(100)
+                          : scaled(200),
                     ),
                   ),
                 ),
@@ -149,7 +149,7 @@ class LoginPage extends StatelessWidget {
   Widget _buildLoginForm(BuildContext context) {
     return SingleChildScrollView(
       child: Container(
-        padding: EdgeInsets.all(ResponsiveSpacing.widthMedium(context)),
+        padding: EdgeInsets.all(ResponsiveSpacing.wMedium),
         //constraints: const BoxConstraints(maxWidth: 400),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -166,7 +166,7 @@ class LoginPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text("Welcome Back 👋", style: AppTextStyles.headlineMedium),
-            SizedBox(height: ResponsiveSpacing.heightMedium(context)),
+            SizedBox(height: ResponsiveSpacing.hMedium),
 
             // Email
             TextField(
@@ -177,7 +177,7 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: ResponsiveSpacing.heightMedium(context)),
+            SizedBox(height: ResponsiveSpacing.hMedium),
 
             // Password
             TextField(
@@ -189,7 +189,7 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: ResponsiveSpacing.heightLarge(context)),
+            SizedBox(height: ResponsiveSpacing.hLarge),
 
             // Button
             SizedBox(
@@ -198,7 +198,7 @@ class LoginPage extends StatelessWidget {
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(
-                    vertical: ResponsiveSpacing.heightMedium(context),
+                    vertical: ResponsiveSpacing.hMedium,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -290,6 +290,7 @@ class MyApp extends StatelessWidget {
 ### Step 3: Build Your UI Naturally
 
 Now you can build your UI as you normally would. All text, and any sizes calculated with the helpers, will be responsive.
+`IMPORTANT`: Don't use const Text() here, as const widgets won't scale properly!!.
 
 #### **Text Scaling (Automatic)**
 
@@ -297,13 +298,15 @@ All `Text` widgets are now automatically responsive.
 
 ```dart
 // This scales automatically based on the init() config.
-const Text(
+// IMPORTANT: Don't use const Text() here, as const widgets don't rebuild with scaling.
+Text(
   'Headline from AppTextStyles',
   style: AppTextStyles.headlineMedium,
 )
 
 // Even manually styled text scales automatically.
-const Text(
+// IMPORTANT: Don't use const Text() here, as const widgets don't rebuild with scaling.
+Text(
   'Manually styled text also works!',
   style: TextStyle(fontSize: 16),
 )
@@ -323,16 +326,109 @@ Column(
     ),
 
     // Responsive Spacing
-    SizedBox(height: ResponsiveSpacing.heightMedium(context)),
+    SizedBox(height: ResponsiveSpacing.hMedium),
 
     // Responsive Custom Size (e.g., for an SVG)
     SvgPicture.asset(
       'assets/star.svg',
-      width: scaledSize(context, 50),
+      width: scaled(50),
     ),
   ],
 )
 ```
+---
+
+## ResponsiveSpacing Usage Guide
+
+The `ResponsiveSpacing` class provides a set of pre-calculated, responsive spacing constants that are based on the screen's height and width. This allows you to create vertical and horizontal gaps in your UI that adapt gracefully to different device sizes.
+
+
+
+#### 📏 Height-Based Spacing
+
+| Property | Description | Dart Example Usage |
+|----------|-------------|--------------------|
+| `ResponsiveSpacing.hXSmall` | Extra Small (0.5% of screen height) | `SizedBox(height: ResponsiveSpacing.hXSmall)` |
+| `ResponsiveSpacing.hSmall`  | Small (1% of screen height)        | `SizedBox(height: ResponsiveSpacing.hSmall)` |
+| `ResponsiveSpacing.hMedium` | Medium (1.5% of screen height)     | `SizedBox(height: ResponsiveSpacing.hMedium)` |
+| `ResponsiveSpacing.hLarge`  | Large (2% of screen height)        | `SizedBox(height: ResponsiveSpacing.hLarge)` |
+| `ResponsiveSpacing.hXLarge` | Extra Large (3% of screen height)  | `SizedBox(height: ResponsiveSpacing.hXLarge)` |
+| `ResponsiveSpacing.hCustom(factor)` | Custom height (`factor * screenHeight`) | `SizedBox(height: ResponsiveSpacing.hCustom(0.5)) // 50% of screen height` |
+
+
+
+#### 📐 Width-Based Spacing
+
+| Property | Description | Dart Example Usage |
+|----------|-------------|--------------------|
+| `ResponsiveSpacing.wXSmall` | Extra Small (1% of screen width)   | `SizedBox(width: ResponsiveSpacing.wXSmall)` |
+| `ResponsiveSpacing.wSmall`  | Small (2% of screen width)        | `SizedBox(width: ResponsiveSpacing.wSmall)` |
+| `ResponsiveSpacing.wMedium` | Medium (4% of screen width)       | `SizedBox(width: ResponsiveSpacing.wMedium)` |
+| `ResponsiveSpacing.wLarge`  | Large (6% of screen width)        | `SizedBox(width: ResponsiveSpacing.wLarge)` |
+| `ResponsiveSpacing.wXLarge` | Extra Large (8% of screen width)  | `SizedBox(width: ResponsiveSpacing.wXLarge)` |
+| `ResponsiveSpacing.wCustom(factor)` | Custom width (`factor * screenWidth`) | `SizedBox(width: ResponsiveSpacing.wCustom(0.5)) // 50% of screen width` |
+
+
+
+#### Example Usage
+
+```dart
+Column(
+  children: [
+    const Text('Title'),
+    // Medium vertical space
+    SizedBox(height: ResponsiveSpacing.hMedium),
+
+    const Text('Subtitle'),
+    // Custom vertical space (5% of screen height)
+    SizedBox(height: ResponsiveSpacing.hCustom(0.05)),
+
+    const Text('Body Text...'),
+  ],
+);
+
+Row(
+  children: [
+    const Icon(Icons.info),
+    // Small horizontal space
+    SizedBox(width: ResponsiveSpacing.wSmall),
+
+    const Expanded(child: Text('Information here')),
+  ],
+);
+```
+---
+
+## Scaling Sizes Usage Guide
+
+The scaling system provides a consistent way to define **sizes** that automatically scale up or down depending on the screen size. This ensures your UI elements remain proportional across devices.
+
+#### Scaled Sizes
+
+The main method is:
+
+```dart
+scaled(baseSize)
+```
+
+#### Example Usage
+
+```dart
+Container(
+  width: scaled(50),
+  height: scaled(50),
+  color: Colors.blue,
+);
+```
+
+```dart
+SvgPicture.asset(
+  'assets/star.svg',
+  width: scaled(50),
+);
+```
+
+---
 
 ## Pre-defined Text Styles
 
@@ -363,6 +459,7 @@ Text(
   ),
 )
 ```
+---
 
 ## How It Works (Under the Hood)
 
@@ -409,4 +506,4 @@ And you want an icon with a base size of `30`.
 
 *   **For Text:** The `ResponsiveScaler.scale()` widget wraps your app in a new `MediaQuery`. It creates a custom `TextScaler` by first multiplying the clamped `finalScale` with the user's system accessibility font size. To prevent text from becoming unreadably large, this **combined value is then clamped again** using the `maxAccessibilityScale` you provided in `init()`. This final, safe value is used to draw all `Text` widgets.
 
-*   **For Icons and Sizes:** When you call `scaledSize(context, 50)`, it simply fetches the same clamped `finalScale` and returns `50 * finalScale`. This guarantees that your icons and spacing scale with the exact same logic as your
+*   **For Icons and Sizes:** When you call `scaled(50)`, it simply fetches the same clamped `finalScale` and returns `50 * finalScale`. This guarantees that your icons and spacing scale with the exact same logic as your

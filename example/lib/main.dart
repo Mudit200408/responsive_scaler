@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+// Assuming your package files are structured like this
 import 'package:responsive_scaler/responsive_scaler.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  ResponsiveScaler.init(designWidth: 390, maxAccessibilityScale: 1.5);
+  // Initialization remains the same - this is where the magic starts
+  ResponsiveScaler.init(designWidth: 390, maxAccessibilityScale: 1.8);
 
   runApp(const MyApp());
 }
@@ -20,6 +22,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Responsive Login Demo',
       theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
+      // The builder is crucial. It captures the screen data on each rebuild.
       builder: (context, child) {
         final scaledChild = ResponsiveScaler.scale(
           context: context,
@@ -51,7 +54,7 @@ class LoginPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Center(
           child: Padding(
-            padding: EdgeInsets.all(ResponsiveSpacing.widthLarge(context)),
+            padding: EdgeInsets.all(ResponsiveSpacing.wLarge),
             child: ResponsiveRowColumn(
               layout: isMobile
                   ? ResponsiveRowColumnType.COLUMN
@@ -64,18 +67,14 @@ class LoginPage extends StatelessWidget {
                   rowFlex: 1,
                   child: Padding(
                     padding: EdgeInsets.only(
-                      bottom: isMobile
-                          ? ResponsiveSpacing.heightLarge(context)
-                          : 0,
-                      right: isMobile
-                          ? 0
-                          : ResponsiveSpacing.widthLarge(context),
+                      // --- CHANGE: Using context-free ResponsiveSpacing constants ---
+                      bottom: isMobile ? ResponsiveSpacing.hLarge : 0,
+                      right: isMobile ? 0 : ResponsiveSpacing.wLarge,
                     ),
                     child: SvgPicture.asset(
                       "assets/login_illustration.svg",
-                      height: isMobile
-                          ? scaledSize(context, 100)
-                          : scaledSize(context, 200),
+                      // --- CHANGE: Using the simpler, context-free scaled() helper ---
+                      height: isMobile ? scaled(200) : scaled(300),
                     ),
                   ),
                 ),
@@ -83,7 +82,8 @@ class LoginPage extends StatelessWidget {
                 // Login Form
                 ResponsiveRowColumnItem(
                   rowFlex: 1,
-                  child: _buildLoginForm(context),
+                  // --- CHANGE: Removed context passing, as it's no longer needed ---
+                  child: _buildLoginForm(),
                 ),
               ],
             ),
@@ -93,27 +93,31 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  Widget _buildLoginForm(BuildContext context) {
+  // --- CHANGE: This method no longer needs the BuildContext ---
+  Widget _buildLoginForm() {
     return SingleChildScrollView(
       child: Container(
-        padding: EdgeInsets.all(ResponsiveSpacing.widthMedium(context)),
-        //constraints: const BoxConstraints(maxWidth: 400),
+        padding: EdgeInsets.all(ResponsiveSpacing.wMedium),
+        constraints:
+            BoxConstraints(maxWidth: scaled(400)), // Constrain form width
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: Colors.black12,
               blurRadius: 12,
-              offset: const Offset(0, 6),
+              offset: Offset(0, 6),
             ),
           ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Text scales automatically
             Text("Welcome Back 👋", style: AppTextStyles.headlineMedium),
-            SizedBox(height: ResponsiveSpacing.heightMedium(context)),
+
+            SizedBox(height: ResponsiveSpacing.hMedium),
 
             // Email
             TextField(
@@ -124,7 +128,8 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: ResponsiveSpacing.heightMedium(context)),
+
+            SizedBox(height: ResponsiveSpacing.hMedium),
 
             // Password
             TextField(
@@ -136,7 +141,8 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: ResponsiveSpacing.heightLarge(context)),
+
+            SizedBox(height: ResponsiveSpacing.hCustom(0.05)),
 
             // Button
             SizedBox(
@@ -144,13 +150,16 @@ class LoginPage extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF6c63ff),
+                  foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(
-                    vertical: ResponsiveSpacing.heightMedium(context),
+                    vertical: ResponsiveSpacing.hMedium,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
+                // Text scales automatically
                 child: Text("Login", style: AppTextStyles.bodyLarge),
               ),
             ),

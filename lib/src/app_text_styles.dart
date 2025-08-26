@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Centralized font weights (to keep it clean and reusable)
+/// Centralized font weights for consistent typography across the app.
 class AppFontWeights {
   static const thin = FontWeight.w100;
   static const extraLight = FontWeight.w200;
@@ -13,84 +13,84 @@ class AppFontWeights {
   static const black = FontWeight.w900;
 }
 
-/// Example text styles aligned with Material 3, now covering all weights
+/// Pre-defined text styles following Material 3 design guidelines.
 class AppTextStyles {
   // --- Display Styles (very large text, impactful) ---
-  static const TextStyle displayLarge = TextStyle(
+  static final TextStyle displayLarge = TextStyle(
     fontSize: 57,
     fontWeight: AppFontWeights.regular,
   );
 
-  static const TextStyle displayMedium = TextStyle(
+  static final TextStyle displayMedium = TextStyle(
     fontSize: 45,
     fontWeight: AppFontWeights.regular,
   );
 
-  static const TextStyle displaySmall = TextStyle(
+  static final TextStyle displaySmall = TextStyle(
     fontSize: 36,
     fontWeight: AppFontWeights.regular,
   );
 
   // --- Headline Styles ---
-  static const TextStyle headlineLarge = TextStyle(
+  static final TextStyle headlineLarge = TextStyle(
     fontSize: 32,
     fontWeight: AppFontWeights.bold,
   );
 
-  static const TextStyle headlineMedium = TextStyle(
+  static final TextStyle headlineMedium = TextStyle(
     fontSize: 28,
     fontWeight: AppFontWeights.semiBold,
   );
 
-  static const TextStyle headlineSmall = TextStyle(
+  static final TextStyle headlineSmall = TextStyle(
     fontSize: 24,
     fontWeight: AppFontWeights.semiBold,
   );
 
   // --- Title Styles ---
-  static const TextStyle titleLarge = TextStyle(
+  static final TextStyle titleLarge = TextStyle(
     fontSize: 22,
     fontWeight: AppFontWeights.medium,
   );
 
-  static const TextStyle titleMedium = TextStyle(
+  static final TextStyle titleMedium = TextStyle(
     fontSize: 18,
     fontWeight: AppFontWeights.medium,
   );
 
-  static const TextStyle titleSmall = TextStyle(
+  static final TextStyle titleSmall = TextStyle(
     fontSize: 14,
     fontWeight: AppFontWeights.medium,
   );
 
   // --- Body Styles ---
-  static const TextStyle bodyLarge = TextStyle(
+  static final TextStyle bodyLarge = TextStyle(
     fontSize: 16,
     fontWeight: AppFontWeights.regular,
   );
 
-  static const TextStyle bodyMedium = TextStyle(
+  static final TextStyle bodyMedium = TextStyle(
     fontSize: 14,
     fontWeight: AppFontWeights.regular,
   );
 
-  static const TextStyle bodySmall = TextStyle(
+  static final TextStyle bodySmall = TextStyle(
     fontSize: 12,
     fontWeight: AppFontWeights.regular,
   );
 
   // --- Label Styles ---
-  static const TextStyle labelLarge = TextStyle(
+  static final TextStyle labelLarge = TextStyle(
     fontSize: 14,
     fontWeight: AppFontWeights.medium,
   );
 
-  static const TextStyle labelMedium = TextStyle(
+  static final TextStyle labelMedium = TextStyle(
     fontSize: 12,
     fontWeight: AppFontWeights.medium,
   );
 
-  static const TextStyle labelSmall = TextStyle(
+  static final TextStyle labelSmall = TextStyle(
     fontSize: 11,
     fontWeight: AppFontWeights.medium,
   );
