@@ -1,3 +1,10 @@
+# 0.1.0
+* Make the scaling logic more robust
+* Remove AppTextStyles dependency, Redundant since the default TextTheme is already responsive
+* Update `scaled(baseSize)` to `scale(baseSize, minValue, maxValue)` for more developer control
+* Add `baseSize.scale(minValue, maxValue)` helper function for easier scaling of arbitrary values
+* Update the Readme documentation
+
 ## 0.0.2
 * Updated and improved documentation
 * Migrated to flutter_lints 6.0.0 for better linting support

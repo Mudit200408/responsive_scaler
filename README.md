@@ -46,6 +46,33 @@ Others, like `responsive_framework`, use breakpoints that can cause sudden jumps
 ✅ **Scaler** = Smooth scaling for text, icons, and spacing  
 ✅ **Framework** = Adaptive layouts at breakpoints  
 
+---
+
+## ⚠️ Migration & Breaking Changes
+
+> **Note:**  
+> Starting from **version 0.1.0**, the old `scaled(baseSize)` function has been replaced by `scale(baseSize, minValue, maxValue)` for more flexibility and control.  
+> You can now also use the `.scale()` extension on any number:  
+> ```dart
+> // Old:
+> scaled(50)
+>
+> // New:
+> scale(50)
+> // or, using the extension:
+> 50.scale()
+> ```
+> 
+> Optional `minValue` and `maxValue` parameters allow you to clamp the scaled value:
+> ```dart
+> scale(50, minValue: 40, maxValue: 60)
+> 50.scale(minValue: 40, maxValue: 60)
+> ```
+> 
+> **Also:** `AppTextStyle` support has been removed. Use the default Flutter `TextTheme` instead.
+
+---
+
 ### Example: Responsive Login Page
 
 Here's how the combo shines in a real-world layout.
@@ -127,8 +154,8 @@ class LoginPage extends StatelessWidget {
                     child: SvgPicture.asset(
                       "assets/login_illustration.svg",
                       height: isMobile
-                          ? scale(100)
-                          : scale(200),
+                          ? scale(100, maxValue: 150, minValue: 80)
+                          : scale(200, maxValue: 300, minValue: 150),
                     ),
                   ),
                 ),
@@ -537,3 +564,4 @@ And you want an icon with a base size of `30`.
 ---
 
 **This ensures your UI remains visually consistent and accessible across all devices.**
+#### Radhe Radhe! 🙏
