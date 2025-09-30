@@ -13,4 +13,3 @@ This example demonstrates how to use the `responsive_scaler` package to create r
 - Responsive icon sizes
 - Responsive spacing
 - Integration with responsive_framework for layout changes
-- Material 3 text styles

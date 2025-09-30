@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:responsive_framework/responsive_framework.dart';
-// Assuming your package files are structured like this
 import 'package:responsive_scaler/responsive_scaler.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialization remains the same - this is where the magic starts
-  ResponsiveScaler.init(designWidth: 390, maxAccessibilityScale: 1.8);
+  // Initialization - this is where the magic starts
+  ResponsiveScaler.init(
+      designWidth: 412,
+      maxAccessibilityScale: 1.8,
+      maxScale: 1.6,
+      minScale: 0.8);
 
   runApp(const MyApp());
 }
@@ -22,11 +25,13 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Responsive Login Demo',
       theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
-      // The builder is crucial. It captures the screen data on each rebuild.
+      // This is crucial. It captures the screen data on each rebuild.
       builder: (context, child) {
         final scaledChild = ResponsiveScaler.scale(
           context: context,
           child: child!,
+          preserveAccessibility:
+              true, // False if you want to ignore accessibility settings
         );
 
         return ResponsiveBreakpoints.builder(
@@ -67,14 +72,14 @@ class LoginPage extends StatelessWidget {
                   rowFlex: 1,
                   child: Padding(
                     padding: EdgeInsets.only(
-                      // --- CHANGE: Using context-free ResponsiveSpacing constants ---
                       bottom: isMobile ? ResponsiveSpacing.hLarge : 0,
                       right: isMobile ? 0 : ResponsiveSpacing.wLarge,
                     ),
                     child: SvgPicture.asset(
                       "assets/login_illustration.svg",
-                      // --- CHANGE: Using the simpler, context-free scaled() helper ---
-                      height: isMobile ? scaled(200) : scaled(300),
+                      height: isMobile
+                          ? 200.scale(maxValue: 250, minValue: 150)
+                          : 300.scale(maxValue: 350, minValue: 250),
                     ),
                   ),
                 ),
@@ -82,8 +87,7 @@ class LoginPage extends StatelessWidget {
                 // Login Form
                 ResponsiveRowColumnItem(
                   rowFlex: 1,
-                  // --- CHANGE: Removed context passing, as it's no longer needed ---
-                  child: _buildLoginForm(),
+                  child: _buildLoginForm(context),
                 ),
               ],
             ),
@@ -93,13 +97,14 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  // --- CHANGE: This method no longer needs the BuildContext ---
-  Widget _buildLoginForm() {
+  Widget _buildLoginForm(BuildContext context) {
+    final theme = Theme.of(context);
     return SingleChildScrollView(
       child: Container(
         padding: EdgeInsets.all(ResponsiveSpacing.wMedium),
-        constraints:
-            BoxConstraints(maxWidth: scaled(400)), // Constrain form width
+        constraints: BoxConstraints(
+            maxWidth: scale(400,
+                maxValue: 500, minValue: 250)), // Constrain form width
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -115,8 +120,7 @@ class LoginPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Text scales automatically
-            Text("Welcome Back 👋", style: AppTextStyles.headlineMedium),
-
+            Text("Welcome Back 👋", style: theme.textTheme.headlineMedium),
             SizedBox(height: ResponsiveSpacing.hMedium),
 
             // Email
@@ -160,7 +164,7 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
                 // Text scales automatically
-                child: Text("Login", style: AppTextStyles.bodyLarge),
+                child: Text("Login", style: theme.textTheme.bodyLarge),
               ),
             ),
           ],

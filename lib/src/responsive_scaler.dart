@@ -12,8 +12,15 @@ class ResponsiveScaler {
   static double _maxScale = 1.4;
   static double _maxAccessibilityScale = 2.0;
 
+  /// Static variables to hold screen data for global access.
   static double screenWidth = 0;
+
+  /// Static variables to hold screen data for global access.
+
   static double screenHeight = 0;
+
+  /// Static variables to hold screen data for global access.
+
   static double scaleFactor = 0;
 
   /// Initializes the ResponsiveScaler with your app's design specifications.
@@ -55,7 +62,7 @@ class ResponsiveScaler {
 
     final mediaQuery = MediaQuery.of(context);
 
-    // --- KEY CHANGE: Capture and store screen data statically ---
+    // --- Capture and store screen data statically ---
     screenWidth = mediaQuery.size.width;
     screenHeight = mediaQuery.size.height;
     final rawScale = screenWidth / _designWidth!;
