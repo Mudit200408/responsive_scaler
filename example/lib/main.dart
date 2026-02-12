@@ -8,10 +8,7 @@ void main() {
 
   // Initialization - this is where the magic starts
   ResponsiveScaler.init(
-      designWidth: 412,
-      maxAccessibilityScale: 1.8,
-      maxScale: 1.6,
-      minScale: 0.8);
+      designWidth: 412, designHeight: 927, maxScale: 1.9, minScale: 0.8);
 
   runApp(const MyApp());
 }
@@ -30,8 +27,7 @@ class MyApp extends StatelessWidget {
         final scaledChild = ResponsiveScaler.scale(
           context: context,
           child: child!,
-          preserveAccessibility:
-              true, // False if you want to ignore accessibility settings
+          useMaxAccessibility: false,
         );
 
         return ResponsiveBreakpoints.builder(
@@ -59,7 +55,7 @@ class LoginPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Center(
           child: Padding(
-            padding: EdgeInsets.all(ResponsiveSpacing.wLarge),
+            padding: EdgeInsets.all(24.r),
             child: ResponsiveRowColumn(
               layout: isMobile
                   ? ResponsiveRowColumnType.COLUMN
@@ -72,8 +68,8 @@ class LoginPage extends StatelessWidget {
                   rowFlex: 1,
                   child: Padding(
                     padding: EdgeInsets.only(
-                      bottom: isMobile ? ResponsiveSpacing.hLarge : 0,
-                      right: isMobile ? 0 : ResponsiveSpacing.wLarge,
+                      bottom: isMobile ? 24.r : 0,
+                      right: isMobile ? 0 : 24.r,
                     ),
                     child: SvgPicture.asset(
                       "assets/login_illustration.svg",
@@ -101,10 +97,10 @@ class LoginPage extends StatelessWidget {
     final theme = Theme.of(context);
     return SingleChildScrollView(
       child: Container(
-        padding: EdgeInsets.all(ResponsiveSpacing.wMedium),
+        padding: EdgeInsets.all(16.r),
         constraints: BoxConstraints(
-            maxWidth: scale(400,
-                maxValue: 500, minValue: 250)), // Constrain form width
+            maxWidth: 400
+                .scale(maxValue: 500, minValue: 250)), // Constrain form width
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -121,7 +117,7 @@ class LoginPage extends StatelessWidget {
           children: [
             // Text scales automatically
             Text("Welcome Back 👋", style: theme.textTheme.headlineMedium),
-            SizedBox(height: ResponsiveSpacing.hMedium),
+            SizedBox(height: 16.r),
 
             // Email
             TextField(
@@ -133,7 +129,7 @@ class LoginPage extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: ResponsiveSpacing.hMedium),
+            SizedBox(height: 16.r),
 
             // Password
             TextField(
@@ -146,7 +142,7 @@ class LoginPage extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: ResponsiveSpacing.hCustom(0.05)),
+            SizedBox(height: 8.r),
 
             // Button
             SizedBox(
@@ -157,7 +153,7 @@ class LoginPage extends StatelessWidget {
                   backgroundColor: const Color(0xFF6c63ff),
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(
-                    vertical: ResponsiveSpacing.hMedium,
+                    vertical: 16.r,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

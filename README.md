@@ -1,255 +1,68 @@
 # Responsive Scaler
 
+
 [![pub version](https://img.shields.io/pub/v/responsive_scaler.svg)](https://pub.dev/packages/responsive_scaler)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-A Flutter package that offers a simple, automatic, and boilerplate-free way to make your app's UI (text, icons, spacing) responsive across different screen sizes.
+**Responsive Scaler** is a lightweight, zero-boilerplate scaling engine for Flutter. It provides a linear, clamped scaling system that ensures your UI remains proportional across mobile, tablet, and desktop without the overhead of manual wrapping or step-based breakpoints.
 
 ---
 
-## 🚀 Why Responsive Scaler?
+## 💎 Key Value Propositions
 
-Making your app responsive shouldn't require wrapping every value or widget.  
-Many solutions, like `screen_util`, require you to use special units (`.sp`, `.w`, `.h`) everywhere.  
-Others, like `responsive_framework`, use breakpoints that can cause sudden jumps in size.
-
-**Responsive Scaler takes a different approach:**
-
-- **Zero Boilerplate for Text:** Initialize **once**, and all your standard `Text` widgets become responsive automatically.
-- **Developer in Control:** You define your app's `designWidth`, giving you a predictable baseline for scaling.
-- **Smooth, Linear Scaling:** No jarring jumps between breakpoints. UI elements scale smoothly as the screen size changes.
-- **Respects Accessibility:** Automatically honors the user's system-level font size settings while providing a safeguard against excessively large text.
-- **Easy Integration:** Designed to be dropped into existing production apps with minimal code changes.
+* **Zero-Boilerplate Text:** Initialize once; all `Text` widgets scale automatically. No `.sp` or `.fontSize` wrappers required.
+* **Linear Scaling Engine:** Smooth transitions between screen sizes. No "jarring" jumps when resizing windows.
+* **Advanced Clamping:** Industry-first "Double-Layer" clamping (Global + Local) to prevent UI implosion on tiny screens or explosion on 4K monitors.
+* **Accessibility Guardrails:** Deep integration with `TextScaler` that respects system settings while capping maximum growth to prevent layout breakage.
+* **The "Radius" Philosophy:** Uses the shortest-side logic (`.r`) to ensure padding and icons remain consistent even in landscape orientation.
 
 ---
 
-## 📊 Comparison with Other Packages
+## 📊 The Responsive Landscape
 
 | Feature | **Responsive Scaler** | **ScreenUtil** | **Responsive Framework** |
-|---------|-------------------------------|----------------|---------------------------|
-| **Text Scaling** | ✅ Automatic for all `Text` widgets (no boilerplate) | ❌ Manual (`16.sp`) everywhere | ⚠️ Breakpoints only (not automatic) |
-| **Design Width** | ✅ Developer defines once (`designWidth`) | ✅ Developer defines (`designSize`) | ❌ Breakpoints only (no single baseline) |
-| **Boilerplate** | ✅ Minimal (init once, wrap MaterialApp) | ❌ High (every value wrapped) | ⚠️ Medium (define breakpoints, wrap UI in `ResponsiveWrapper`) |
-| **Scaling Style** | ✅ Smooth linear scaling | ✅ Linear scaling but manual | ❌ Step jumps at breakpoints |
-| **Accessibility Respect** | ✅ Built-in (`TextScaler` + clamp) | ❌ Developer must handle manually | ⚠️ Limited (breakpoints don't always sync with accessibility) |
-| **Best Use Case** | Apps that want **drop-in, automatic responsiveness** | Pixel-perfect manual scaling | Apps with **different layouts per screen width** |
+| :--- | :--- | :--- | :--- |
+| **Text Scaling** | **Automatic** (Global Injection) | Manual (`16.sp`) | Breakpoint-based (Not linear) |
+| **Effort** | **Set & Forget** | High (Wrap every value) | Medium (Layout logic focus) |
+| **Scaling Style** | Smooth Linear | Smooth Linear | Step-based Jumps |
+| **Safety** | **Global + Local Clamping** | None (Manual only) | Range-based |
+| **Primary Goal** | **Component Scaling** | Pixel Perfection | **Adaptive Layouts** |
+
+> **Pro Tip:** Use **Responsive Scaler** for scaling (fonts, icons, spacing) and **Responsive Framework** for adaptive layouts (changing a Column to a Row). They are the perfect combo.
 
 ---
 
-## 🌟 The One-Shot Combo: Scaler + Framework
+## ⚠️ Migration & Breaking Changes (v0.1.0)
 
-`responsive_scaler` handles **scaling of text, icons, and spacing** automatically.  
-`responsive_framework` handles **layout changes at breakpoints** (like moving widgets around, showing sidebars, or swapping grids).
-
-**Together, they cover *both sides of responsiveness*:**
-
-✅ **Scaler** = Smooth scaling for text, icons, and spacing  
-✅ **Framework** = Adaptive layouts at breakpoints  
-
----
-
-## ⚠️ Migration & Breaking Changes
-
-> **Note:**  
-> Starting from **version 0.1.0**, the old `scaled(baseSize)` function has been replaced by `scale(baseSize, minValue, maxValue)` for more flexibility and control.  
-> You can now also use the `.scale()` extension on any number:  
-> ```dart
-> // Old:
-> scaled(50)
->
-> // New:
-> scale(50)
-> // or, using the extension:
-> 50.scale()
-> ```
-> 
-> Optional `minValue` and `maxValue` parameters allow you to clamp the scaled value:
-> ```dart
-> scale(50, minValue: 40, maxValue: 60)
-> 50.scale(minValue: 40, maxValue: 60)
-> ```
-> 
-> **Also:** `AppTextStyle` support has been removed. Use the default Flutter `TextTheme` instead.
-
----
-
-### Example: Responsive Login Page
-
-Here's how the combo shines in a real-world layout.
+> [!IMPORTANT]
+> The global `scale()` function (e.g., `scale(50)`) has been **removed**.
+> You must now use the extension methods on `num` types.
 
 ```dart
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:responsive_framework/responsive_framework.dart';
-import 'package:responsive_scaler/responsive_scaler.dart';
+// OLD (Removed)
+scale(50)
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
+// NEW Extension Methods
 
-  ResponsiveScaler.init(designWidth: 412, maxAccessibilityScale: 1.5);
+// From previous version
+50.scale() // Defaults to width-based scale
+50.scale(type: ScaleType.width, minValue: 100, maxValue: 300) 
 
-  runApp(const MyApp());
-}
+// ----- RECOMMENDED -----
+// Shorthands
+50.w  // Width-based
+50.h  // Height-based
+50.r  // Radius/Minimum-based
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Responsive Login Demo',
-      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
-      builder: (context, child) {
-        final scaledChild = ResponsiveScaler.scale(
-          context: context,
-          child: child!,
-        );
-
-        return ResponsiveBreakpoints.builder(
-          breakpoints: [
-            const Breakpoint(start: 0, end: 450, name: MOBILE),
-            const Breakpoint(start: 451, end: 800, name: TABLET),
-            const Breakpoint(start: 801, end: 1920, name: DESKTOP),
-          ],
-          child: scaledChild,
-        );
-      },
-      home: const LoginPage(),
-    );
-  }
-}
-
-class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    bool isMobile = ResponsiveBreakpoints.of(context).smallerThan(TABLET);
-
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Center(
-          child: Padding(
-            padding: EdgeInsets.all(ResponsiveSpacing.wLarge),
-            child: ResponsiveRowColumn(
-              layout: isMobile
-                  ? ResponsiveRowColumnType.COLUMN
-                  : ResponsiveRowColumnType.ROW,
-              rowMainAxisAlignment: MainAxisAlignment.center,
-              columnCrossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Illustration
-                ResponsiveRowColumnItem(
-                  rowFlex: 1,
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      bottom: isMobile
-                          ? ResponsiveSpacing.hLarge
-                          : 0,
-                      right: isMobile
-                          ? 0
-                          : ResponsiveSpacing.wLarge,
-                    ),
-                    child: SvgPicture.asset(
-                      "assets/login_illustration.svg",
-                      height: isMobile
-                          ? scale(100, maxValue: 150, minValue: 80)
-                          : scale(200, maxValue: 300, minValue: 150),
-                    ),
-                  ),
-                ),
-
-                // Login Form
-                ResponsiveRowColumnItem(
-                  rowFlex: 1,
-                  child: _buildLoginForm(context),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoginForm(BuildContext context) {
-    final theme = Theme.of(context);
-    return SingleChildScrollView(
-      child: Container(
-        padding: EdgeInsets.all(ResponsiveSpacing.wMedium),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text("Welcome Back 👋", style: theme.textTheme.headlineMedium),
-            SizedBox(height: ResponsiveSpacing.hMedium),
-
-            // Email
-            TextField(
-              decoration: InputDecoration(
-                labelText: "Email",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-            SizedBox(height: ResponsiveSpacing.hMedium),
-
-            // Password
-            TextField(
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: "Password",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-            SizedBox(height: ResponsiveSpacing.hLarge),
-
-            // Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(
-                    vertical: ResponsiveSpacing.hMedium,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text("Login", style: theme.textTheme.bodyLarge),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// With Clamping
+50.wc(minValue: 100, maxValue: 300) // Width-based with clamping
+50.hc(minValue: 50) // Height-based with clamping
+50.rc(minValue: 25) // Radius-based with clamping
 ```
-
-**What happens here:**
-- **Responsive Framework** changes the layout from column (mobile) to row (desktop)
-- **Responsive Scaler** ensures all text, icons, and spacing scale smoothly on every screen size
-- **Best of both worlds:** Layout adaptation + automatic scaling
 
 ---
 
-## Installation
+## 📦 Installation
 
 Add this to your package's `pubspec.yaml` file:
 
@@ -258,310 +71,188 @@ dependencies:
   responsive_scaler: ^latest_version
 ```
 
-Then, run `flutter pub get` in your terminal.
+Then run `flutter pub get`.
 
 ---
 
-## How to Use
+## 🛠 Getting Started
 
-### Step 1: Initialize the Scaler
+### 1. Initialize the Scaler
 
-In your `lib/main.dart` file, call `ResponsiveScaler.init()` **before** `runApp()`. This is the most important step.
-
-Provide the `designWidth` of the device you are basing your UI on. For example, if you are making and testing the app on Pixel 9 which has a width of `412`.
+In your `main.dart`, call `ResponsiveScaler.init()` **before** `runApp()`. 
+You must provide the `designWidth` and `designHeight` from your design file (e.g., Figma).
 
 ```dart
-import 'package:flutter/material.dart';
 import 'package:responsive_scaler/responsive_scaler.dart';
 
 void main() {
-  // Initialize the scaler with your design width.
   ResponsiveScaler.init(
-    designWidth: 412,
-    // Optional: Set min/max scale factors for UI elements.
-    minScale: 0.8,
-    maxScale: 1.2,
-    // Optional: Clamp the final text size for accessibility to prevent it from getting too large.
-    maxAccessibilityScale: 1.8,
+    designWidth: 375,  // e.g., iPhone Design Width
+    designHeight: 812, // e.g., iPhone Design Height
+    minScale: 0.8,     // Optional: Minimum scale factor (default 0.8)
+    maxScale: 1.4,     // Optional: Maximum scale factor (default 1.4)
+    maxAccessibilityScale: 1.8, // Optional: Limit for system text scaling
   );
 
   runApp(const MyApp());
 }
 ```
 
-### Step 2: Apply Scaling to the App
+### 2. Apply Scaling to the App
 
-In your `MyApp` widget, use the `MaterialApp.builder` property to wrap your app with `ResponsiveScaler.scale`.
+Wrap your app using `ResponsiveScaler.scale` in the `MaterialApp` builder.
+
+> [!NOTE]
+> Set `useMaxAccessibility: true` to enable the accessibility clamping feature configured in `init()`.
 
 ```dart
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Responsive Scaler Example',
-      // Use the builder to apply scaling to the entire app.
       builder: (context, child) {
-        // The scale method now reads the global config set in main().
         return ResponsiveScaler.scale(
-          context: context, 
+          context: context,
           child: child!,
-          preserveAccessibility: true, // False if you want to ignore accessibility settings
+          useMaxAccessibility: true, // Enables accessibility clamping
         );
       },
-      home: const MyHomePage(),
+      home: const HomePage(),
     );
   }
 }
 ```
 
-### Step 3: Build Your UI Naturally
+---
 
-Now you can build your UI as you normally would. All text, and any sizes calculated with the helpers, will be responsive.
+## 📖 Usage Guide
 
-> **Important:** Don’t use `const Text()` here, as const widgets won’t scale properly.
+### 1. Automatic Text Scaling
 
-#### **Text Scaling (Automatic)**
-
-All `Text` widgets are now automatically responsive.
+Once initialized, **standard `Text` widgets scale automatically**. You don't need to do anything special.
+> [!NOTE]
+> Do not use `const` with `Text` widgets
 
 ```dart
-// This scales automatically based on the init() config.
+// This text automatically scales based on screen width/height
+// No `const` should be used!!
+// Reason: `const` widgets are "frozen" and won't listen to the MediaQuery updates 
+// that drive the responsive scaling.
 Text(
-  'Responsive Headline Text',
+  'Hello World',
+  style: TextStyle(fontSize: 16), 
+)
+
+// OR
+Text(
+  'Hello World',
   style: Theme.of(context).textTheme.headlineMedium,
 )
-
-// Even manually styled text scales automatically.
-Text(
-  'Manually styled text also works!',
-  style: TextStyle(fontSize: 16),
-)
 ```
 
-#### **Responsive Icons, Spacing, and Sizes**
+### 2. Scaling Sizes & Spacing
 
-Use the helper functions for consistent scaling on non-text elements.
+For non-text elements (containers, icons, padding), use the extension methods on `num`.
 
-```dart
-Column(
-  children: [
-    // Responsive Spacing
-    SizedBox(height: ResponsiveSpacing.hMedium),
+#### Basic Extensions
 
-    // Responsive Custom Size (e.g., for an SVG)
-    SvgPicture.asset(
-      'assets/star.svg',
-      width: scale(50),
-    ),
-  ],
-)
-```
-
----
-
-## ResponsiveSpacing Usage Guide
-
-The `ResponsiveSpacing` class provides a set of pre-calculated, responsive spacing constants that are based on the screen's height and width. This allows you to create vertical and horizontal gaps in your UI that adapt gracefully to different device sizes.
-
-#### 📏 Height-Based Spacing
-
-| Property | Description | Dart Example Usage |
-|----------|-------------|--------------------|
-| `ResponsiveSpacing.hXSmall` | Extra Small (0.5% of screen height) | `SizedBox(height: ResponsiveSpacing.hXSmall)` |
-| `ResponsiveSpacing.hSmall`  | Small (1% of screen height)        | `SizedBox(height: ResponsiveSpacing.hSmall)` |
-| `ResponsiveSpacing.hMedium` | Medium (1.5% of screen height)     | `SizedBox(height: ResponsiveSpacing.hMedium)` |
-| `ResponsiveSpacing.hLarge`  | Large (2% of screen height)        | `SizedBox(height: ResponsiveSpacing.hLarge)` |
-| `ResponsiveSpacing.hXLarge` | Extra Large (3% of screen height)  | `SizedBox(height: ResponsiveSpacing.hXLarge)` |
-| `ResponsiveSpacing.hCustom(factor)` | Custom height (`factor * screenHeight`, e.g. `0.05` for 5%) | `SizedBox(height: ResponsiveSpacing.hCustom(0.05))` |
-
-#### 📐 Width-Based Spacing
-
-| Property | Description | Dart Example Usage |
-|----------|-------------|--------------------|
-| `ResponsiveSpacing.wXSmall` | Extra Small (1% of screen width)   | `SizedBox(width: ResponsiveSpacing.wXSmall)` |
-| `ResponsiveSpacing.wSmall`  | Small (2% of screen width)        | `SizedBox(width: ResponsiveSpacing.wSmall)` |
-| `ResponsiveSpacing.wMedium` | Medium (4% of screen width)       | `SizedBox(width: ResponsiveSpacing.wMedium)` |
-| `ResponsiveSpacing.wLarge`  | Large (6% of screen width)        | `SizedBox(width: ResponsiveSpacing.wLarge)` |
-| `ResponsiveSpacing.wXLarge` | Extra Large (8% of screen width)  | `SizedBox(width: ResponsiveSpacing.wXLarge)` |
-| `ResponsiveSpacing.wCustom(factor)` | Custom width (`factor * screenWidth`, e.g. `0.05` for 5%) | `SizedBox(width: ResponsiveSpacing.wCustom(0.05))` |
-
-#### Example Usage
-
-```dart
-Column(
-  children: [
-    const Text('Title'),
-    // Medium vertical space
-    SizedBox(height: ResponsiveSpacing.hMedium),
-
-    const Text('Subtitle'),
-    // Custom vertical space (5% of screen height)
-    SizedBox(height: ResponsiveSpacing.hCustom(0.05)),
-
-    const Text('Body Text...'),
-  ],
-);
-
-Row(
-  children: [
-    const Icon(Icons.info),
-    // Small horizontal space
-    SizedBox(width: ResponsiveSpacing.wSmall),
-
-    const Expanded(child: Text('Information here')),
-  ],
-);
-```
-
-> **Note:** If you do not use clamping, sizes may become too small or too large on extreme screen sizes.
-
----
-
-## Scaling Sizes Usage Guide
-
-The scaling system provides a consistent way to define **sizes** that automatically scale up or down depending on the screen size. This ensures your UI elements remain proportional across devices.
-
-### Scaling Sizes
-
-You have two main ways to scale sizes:
-
-#### 1. The `scale()` Function
-
-Call `scale(baseSize, minValue: ..., maxValue: ...)` to scale a value and optionally clamp it.
-
-```dart
-// Scale a value by the global scale factor
-double iconSize = scale(50);
-
-// Scale and clamp to a minimum value
-double minIconSize = scale(50, minValue: 40);
-
-// Scale and clamp to a maximum value
-double maxIconSize = scale(50, maxValue: 60);
-
-// Scale and clamp between min and max
-double clampedIconSize = scale(50, minValue: 40, maxValue: 60);
-```
-
-#### 2. The `.scale()` Extension on `num`
-
-You can use `.scale()` directly on any number for a more concise syntax:
-
-```dart
-// Just scale by the factor, no clamping
-final s1 = 16.scale();
-
-// Scale and clamp to a minimum
-final s2 = 16.scale(minValue: 12);
-
-// Scale and clamp to a maximum
-final s3 = 16.scale(maxValue: 20);
-
-// Scale and clamp between min and max
-final s4 = 16.scale(minValue: 12, maxValue: 20);
-```
-
-**All parameters (`minValue`, `maxValue`) are optional.**  
-If you omit them, only scaling is applied.
-
----
-
-### How Scaling and Clamping Work
-
-- The value is first multiplied by the global scale factor.
-- If `minValue` and/or `maxValue` are provided, the result is clamped:
-    - If both are provided: result is clamped between them.
-    - If only `minValue` is provided: result is at least `minValue`.
-    - If only `maxValue` is provided: result is at most `maxValue`.
-    - If neither is provided: result is just the scaled value.
-
-#### Example
-
-Suppose:
-- `baseSize = 100`
-- `scaleFactor = 1.5`
-- `minValue = 120`
-- `maxValue = 140`
-
-Calculation:
-1. `scaledValue = 100 * 1.5 = 150`
-2. Clamped between 120 and 140 → **140**
-
----
-
-### Example Usage
+| Extension | Meaning | Best Used For |
+|-----------|---------|---------------|
+| `.w` | Width-based scale | Horizontal widths, margins, padding |
+| `.h` | Height-based scale | Vertical heights, margins, padding |
+| `.r` | Radius-based scale (Min of W/H) | Icons, circular avatars, square containers |
 
 ```dart
 Container(
-  width: 50.scale(minValue: 40, maxValue: 60),
-  height: scale(50, minValue: 40, maxValue: 60),
-  color: Colors.blue,
-);
-
-SvgPicture.asset(
-  'assets/star.svg',
-  width: 32.scale(), // No clamping, just scaling.
+  width: 100.w,      // Scales with screen width
+  height: 200.h,     // Scales with screen height
+  padding: EdgeInsets.all(16.r), // Scales evenly
 );
 ```
 
----
+#### Clamped Scaling (`.wc`, `.hc`, `.rc`)
 
-**Tip:**  
-You can use `.scale()` or `scale()` anywhere you need a responsive size—icons, padding, spacing, etc.  
-All clamping parameters are optional and help you keep your UI elements within reasonable bounds on all devices.
+Use these to prevent UI elements from becoming too small or too large, regardless of the screen size.
 
----
+```dart
+// Width scaled, but never smaller than 100 or larger than 300
+width: 200.wc(minValue: 100, maxValue: 300),
 
-## How It Works (Under the Hood)
+// Height scaled, but never smaller than 50
+height: 100.hc(minValue: 50),
+```
 
-The logic is based on a simple, powerful idea: calculate a single scale factor and apply it consistently.
+### 3. Responsive Spacing [DEPRECATED]
 
-### 1. Global Initialization
+Use `ResponsiveSpacing` for consistent gaps between widgets.
 
-When you call `ResponsiveScaler.init(designWidth: 412, ...)`, the package stores your `designWidth`, `minScale`, `maxScale`, and `maxAccessibilityScale` values in global static variables. This configuration is done only once and is available throughout the app's lifecycle.
+> [!WARNING]
+> **The Grid System:** Both horizontal (`w`) and vertical (`h`) spacers use the **radius (`.r`)** scaling logic. 
+> This means `hMedium` and `wMedium` return the *exact same pixel value*, creates a perfectly symmetrical visual grid.
+> RECOMMENDED to define manual numbers since this is DEPRECATED and will be removed in future versions.
 
-### 2. The Scaling Calculation
 
-Every time a responsive size is needed, the scale factor is calculated as follows:
+```dart
+Column(
+  children: [
+    Text("Title"),
+    SizedBox(height: ResponsiveSpacing.hMedium), // Vertical gap
+    Text("Subtitle"),
+  ],
+)
+```
 
-#### A. Ratio Calculation
-
-It calculates a raw scale factor by dividing the device's current width by your design width.
-
-`scale = currentWidth / designWidth`
-
-#### B. Clamping for Control
-
-An unconstrained ratio can lead to ridiculously large or tiny UI elements. To prevent this, the raw `scale` is "clamped" to stay within your `minScale` and `maxScale` limits.
-
-`finalScale = min(maxScale, max(minScale, rawScale))`
-
-#### Example Walkthrough
-
-Let's assume you did this in `main.dart`:
-`ResponsiveScaler.init(designWidth: 390, minScale: 0.8, maxScale: 1.5);`
-
-And you want an icon with a base size of `30`.
-
-- **On a small phone (width: 320px):**
-    - `scale = 320 / 412` which is `~0.78`.
-    - This is within the clamp range `[0.8, 1.5]`.
-    - Final icon size = `30 * 0.78` = **`23.4`**. The icon shrinks.
-
-- **On a large tablet (width: 900px):**
-    - `scale = 900 / 412` which is `~2.18`.
-    - This is *outside* the clamp range. It gets clamped down to the `maxScale`.
-    - Final icon size = `30 * 1.5` = **`45.0`**. The icon grows, but it doesn't become excessively large.
-
-### 3. Applying the Scale Factor
-
-- **For Text:** The `ResponsiveScaler.scale()` widget wraps your app in a new `MediaQuery`. It creates a custom `TextScaler` by first multiplying the clamped `finalScale` with the user's system accessibility font size. To prevent text from becoming unreadably large, this **combined value is then clamped again** using the `maxAccessibilityScale` you provided in `init()`. This final, safe value is used to draw all `Text` widgets.
-
-- **For Icons and Sizes:** When you call `scale(50)` or `50.scale()`, it fetches the same clamped `finalScale` and returns `50 * finalScale`. This guarantees that your icons and spacing scale with the exact same logic as your text.
+| Constant | Description | Value  |
+|----------|-------------|-------------------|
+| `hXSmall` / `wXSmall` | Extra Small | 4.r |
+| `hSmall` / `wSmall` | Small | 8.r |
+| `hMedium` / `wMedium` | Medium | 16.r |
+| `hLarge` / `wLarge` | Large | 24.r |
+| `hXLarge` / `wXLarge` | Extra Large | 32.r |
 
 ---
 
-**This ensures your UI remains visually consistent and accessible across all devices.**
-#### Radhe Radhe! 🙏
+## 🔍 Deep Dive: Under the Hood
+
+How does Responsive Scaler actually calculate sizes?
+
+### 1. The Core Calculation
+The scaler calculates a ratio based on the current screen size vs. your design size.
+
+$$ Scale_{width} = \frac{\text{Current Screen Width}}{\text{Design Width}} $$
+
+$$ Scale_{height} = \frac{\text{Current Screen Height}}{\text{Design Height}} $$
+
+### 2. Clamping Logic
+To prevent UI from breaking on extremely large (tablets/desktop) or small (watches/mini) screens, the calculated scale factor is **clamped**.
+
+```dart
+FinalScale = clamp(CalculatedScale, minScale, maxScale)
+```
+*Defined in `init()`.*
+
+### 3. The "Radius" Scale (`.r`)
+For elements that should maintain their aspect ratio (like Icons or square Avatars), we use the **Scaling Radius**. This is simply the **minimum** of the width and height scales.
+
+```dart
+RadiusScale = min(WidthScale, HeightScale)
+```
+This ensures that an icon doesn't grow disproportionately huge just because the device is very tall (like a foldable) or very wide (like a tablet).
+
+### 4. Accessibility Protection
+For Text, we multiply the `RadiusScale` by the user's System Text Scale (from OS settings).
+However, if `useMaxAccessibility` is enabled, we apply a safety cap:
+
+```dart
+FinalTextScale = min(RadiusScale * SystemScale, maxAccessibilityScale)
+```
+
+This ensures that even if a user sets their phone to "Huge Text", your app's layout won't break completely, while still respecting their need for larger text.
+
+---
+
+## 🏗️ Built with Responsive Scaler
+
+Check out this project to see the package in action:
+
+*   [**muditpurohit.tech**](https://muditpurohit.tech) – A portfolio website that stays perfectly proportioned from mobile to desktop.

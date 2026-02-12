@@ -1,51 +1,99 @@
 import 'dart:math';
+
 import 'package:responsive_scaler/responsive_scaler.dart';
 
-/// Scales a given size by the global [ResponsiveScaler.scaleFactor], with optional clamping.
+/// Extension on [num] to provide convenient shorthand for responsive scaling.
 ///
-/// The result is:
-///   - Clamped between [minValue] and [maxValue] if both are provided.
-///   - Clamped to at least [minValue] if only [minValue] is provided.
-///   - Clamped to at most [maxValue] if only [maxValue] is provided.
-///   - Returned as-is if neither is provided.
+/// ### Example Usage:
 ///
-/// Example:
-///   scaled(100, minValue: 120, maxValue: 140) with scaleFactor=1.5
-///   → 100 * 1.5 = 150, clamped to 140.
+/// **1. Basic Scaling:**
+/// ```dart
+/// Container(
+///   width: 200.w,  // Scales 200 based on width ratio
+///   height: 50.h,  // Scales 50 based on height ratio
+///   padding: EdgeInsets.all(16.r), // Scales 16 based on "radius" (min ratio)
+/// )
+/// ```
 ///
-double scale(double size, {double? minValue, double? maxValue}) {
-  double value = size * ResponsiveScaler.scaleFactor;
-  if (minValue != null)
-    value = maxValue != null
-        ? value.clamp(minValue, maxValue)
-        : max(value, minValue);
-  if (maxValue != null)
-    value = minValue != null
-        ? value.clamp(minValue, maxValue)
-        : min(value, maxValue);
-  return value;
-}
-
-/// Extension on [num] to provide a convenient `.scale` getter with optional clamping.
+/// **2. Clamped Scaling:**
+/// ```dart
+///  Width scaling that won't shrink below 150 or grow above 250
+/// double size = 200.wc(minValue: 150, maxValue: 250);
 ///
-/// Usage:
-///   16.scale(minValue: 12, maxValue: 20) or 16.scale()
-///   → Scales 16 by [ResponsiveScaler.scaleFactor] and clamps the result.
+///  Height scaling that won't shrink below 40
+/// double headerHeight = 60.hc(minValue: 40);
+/// ```
 ///
+/// **3. Explicit Type Scaling:**
+///
+/// NOTE: scale(100, minValue: 80, maxValue: 120) is DEPRECATED!!!
+///
+/// ```dart
+///  Defaults to width scaling
+/// double x = 100.scale();
+///
+///  Explicitly choosing radius scaling with clamps
+///  Default is ScaleType.width (Same as before, but recommended to use ScaleType.radius for predicatable UI)
+///
+/// double y = 100.scale(type: ScaleType.radius, minValue: 80, maxValue: 120);
+/// ```
 extension ScaleExtension on num {
-  /// Scales the number by the global [ResponsiveScaler.scaleFactor], with optional clamping.
-  ///
-  /// See [scaled] for clamping logic and examples.
-  double scale({double? minValue, double? maxValue}) {
-    double value = this * ResponsiveScaler.scaleFactor;
-    if (minValue != null)
-      value = maxValue != null
-          ? value.clamp(minValue, maxValue)
-          : max(value, minValue);
-    if (maxValue != null)
-      value = minValue != null
-          ? value.clamp(minValue, maxValue)
-          : min(value, maxValue);
+  /// Scales based on width ratio.
+  double get w {
+    ResponsiveScaler.ensureInitialized();
+    return this * ResponsiveScaler.widthScale;
+  }
+
+  /// Scales based on height ratio.
+  double get h {
+    ResponsiveScaler.ensureInitialized();
+    return this * ResponsiveScaler.heightScale;
+  }
+
+  /// Scales based on the min(widthScale, heightScale).
+  double get r {
+    ResponsiveScaler.ensureInitialized();
+    return this * ResponsiveScaler.radiusScale;
+  }
+
+  /// Height scaling with optional [minValue] and [maxValue] clamping.
+  double hc({double? minValue, double? maxValue}) {
+    ResponsiveScaler.ensureInitialized();
+    return _clamp(this * ResponsiveScaler.heightScale, minValue, maxValue);
+  }
+
+  /// Width scaling with optional [minValue] and [maxValue] clamping.
+  double wc({double? minValue, double? maxValue}) {
+    ResponsiveScaler.ensureInitialized();
+    return _clamp(this * ResponsiveScaler.widthScale, minValue, maxValue);
+  }
+
+  /// Radius scaling with optional [minValue] and [maxValue] clamping.
+  double rc({double? minValue, double? maxValue}) {
+    ResponsiveScaler.ensureInitialized();
+    return _clamp(this * ResponsiveScaler.radiusScale, minValue, maxValue);
+  }
+
+  /// Generic scale method. Defaults to [ScaleType.width].
+  double scale({
+    ScaleType type = ScaleType.width,
+    double? minValue,
+    double? maxValue,
+  }) {
+    ResponsiveScaler.ensureInitialized();
+    final factor = switch (type) {
+      ScaleType.width => ResponsiveScaler.widthScale,
+      ScaleType.height => ResponsiveScaler.heightScale,
+      ScaleType.radius => ResponsiveScaler.radiusScale,
+    };
+    return _clamp(this * factor, minValue, maxValue);
+  }
+
+  /// Internal helper to apply clamping logic.
+  double _clamp(double value, double? minV, double? maxV) {
+    if (minV != null && maxV != null) return value.clamp(minV, maxV);
+    if (minV != null) return max(value, minV);
+    if (maxV != null) return min(value, maxV);
     return value;
   }
 }
