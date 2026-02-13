@@ -1,10 +1,9 @@
 name: responsive_scaler
 description: A Flutter package for consistent responsive scaling of text, icons, and spacing based on screen size, helping maintain UI proportionality across devices.
-version: 0.1.0
+version: 1.0.0
 homepage: https://github.com/Mudit200408/responsive_scaler
 repository: https://github.com/Mudit200408/responsive_scaler
 issue_tracker: https://github.com/Mudit200408/responsive_scaler/issues
-publish_to: https://pub.dev
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
