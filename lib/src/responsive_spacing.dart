@@ -7,7 +7,7 @@ import 'package:responsive_scaler/responsive_scaler.dart';
 /// This ensures that padding and margins remain consistent and proportional
 /// across different screen aspect ratios and orientations.
 
-@deprecated
+@Deprecated('Use the .r extension instead (e.g., 16.r, 24.r).')
 class ResponsiveSpacing {
   // --- Height-based (Vertical) Spacing ---
 

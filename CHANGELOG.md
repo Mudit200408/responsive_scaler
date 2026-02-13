@@ -1,4 +1,8 @@
-# 1.0.0 🎉
+# 1.0.1 🎉
+* Add Deprecate message in `ResponsiveSpacing` class in favor of `.r` extension (e.g., `16.r`)
+* Remove `publish_to` field from the `pubspec.yaml` file
+
+# 1.0.0 
 * **BREAKING:** `scale(value, minValue, maxValue)` is now removed in favor of `value.scale(minValue, maxValue, type)`
 * Add `ScaleType` enum (`width`, `height`, `radius`) for explicit scaling strategies
 * Add `designHeight` parameter to `ResponsiveScaler.init()` for height-based scaling
