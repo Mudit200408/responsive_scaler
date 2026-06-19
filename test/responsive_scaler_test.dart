@@ -168,4 +168,65 @@ void main() {
       tester.platformDispatcher.clearTextScaleFactorTestValue();
     });
   });
+
+  // GROUP: New Features Tests
+  group('New Features Tests', () {
+    test('isInitialized state checks', () {
+      expect(ResponsiveScaler.isInitialized, isTrue);
+    });
+
+    testWidgets('Default maxAccessibilityScale widget scaling', (tester) async {
+      ResponsiveScaler.init(
+        designWidth: 400,
+        designHeight: 800,
+        minScale: 1.0,
+        maxScale: 1.5,
+      );
+
+      setScreenSize(tester, 400, 800);
+      tester.platformDispatcher.textScaleFactorTestValue = 3.0;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          builder: (context, child) => ResponsiveScaler.scale(
+            context: context,
+            useMaxAccessibility: true,
+            child: child!,
+          ),
+          home: const Scaffold(body: Text('Test')),
+        ),
+      );
+
+      final BuildContext context = tester.element(find.byType(Text));
+      final textScaler = MediaQuery.of(context).textScaler;
+      expect(textScaler.scale(10), closeTo(19.5, 0.01));
+
+      tester.platformDispatcher.clearTextScaleFactorTestValue();
+    });
+
+    testWidgets('Non-linear scaling with scalingPower', (tester) async {
+      ResponsiveScaler.init(
+        designWidth: 400,
+        designHeight: 800,
+        minScale: 0.1,
+        maxScale: 5.0,
+        scalingPower: 0.5,
+      );
+
+      setScreenSize(tester, 600, 1200);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          builder: (context, child) => ResponsiveScaler.scale(
+            context: context,
+            child: child!,
+          ),
+          home: const Scaffold(),
+        ),
+      );
+
+      expect(ResponsiveScaler.widthScale, closeTo(1.2247, 0.001));
+      expect(ResponsiveScaler.heightScale, closeTo(1.2247, 0.001));
+    });
+  });
 }

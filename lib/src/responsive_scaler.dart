@@ -13,6 +13,15 @@ enum ScaleType {
   radius
 }
 
+/// **Important — Static State Limitation:**
+/// Scale factors (`widthScale`, `heightScale`, `radiusScale`) are stored as
+/// static variables and updated each time [scale] is called from
+/// `MaterialApp.builder`. In standard single-window mobile apps this is
+/// always correct. In split-screen, multi-window, or any scenario where
+/// multiple `MediaQuery` contexts exist simultaneously, these statics will
+/// reflect the last-built context only. In those cases, use `LayoutBuilder`
+/// for widget-level responsive sizing instead of the `.w`/`.h`/`.r` extensions.
+///
 /// A utility class that provides automatic responsive scaling for Flutter apps.
 ///
 /// This class enables automatic text scaling and provides screen dimension data
@@ -23,6 +32,7 @@ class ResponsiveScaler {
   static double? _designHeight;
   static double _minScale = 0.8;
   static double _maxScale = 1.4;
+  static double _scalingPower = 1.0;
 
   // Default value is set to infinity, but it will be updated in the init method if the developer wants to set a custom value.
   static double? _maxAccessibilityScale;
@@ -34,11 +44,10 @@ class ResponsiveScaler {
 
   static double screenHeight = 0;
 
-  /// Static variables to hold screen data for global access.
+  static bool _isScaled = false;
 
-  static double scaleFactor = 0;
-
-static bool _isScaled = false;
+  /// Returns whether the ResponsiveScaler has been initialized.
+  static bool get isInitialized => _isScaled;
 
   /// Initializes the ResponsiveScaler with your app's design specifications.
   ///
@@ -47,26 +56,28 @@ static bool _isScaled = false;
   /// [designWidth] The width in pixels that your UI was designed for (e.g., 390 for iPhone 12)
   /// [minScale] Minimum scaling factor to prevent text from becoming too small (default: 0.8)
   /// [maxScale] Maximum scaling factor to prevent text from becoming too large (default: 1.4)
+  /// [scalingPower] Controls the scaling curve. 1.0 = linear (default).
+  /// Values below 1.0 produce a gentler curve where close screen sizes
+  /// feel more similar. Recommended range: 0.5–1.0.
   /// [maxAccessibilityScale] Maximum scale when accessibility settings are considered (default: 1.8)
   static void init({
     required double designWidth,
     required double designHeight,
     double minScale = 0.8,
     double maxScale = 1.4,
+    double scalingPower = 1.0,
     double? maxAccessibilityScale,
   }) {
     _designWidth = designWidth;
     _designHeight = designHeight;
     _minScale = minScale;
     _maxScale = maxScale;
-    if (maxAccessibilityScale != null) {
-      if (maxAccessibilityScale < maxScale) {
-        throw ArgumentError(
-          'maxAccessibilityScale ($maxAccessibilityScale) must be >= maxScale ($maxScale).',
-        );
-      }
-
-      _maxAccessibilityScale = maxAccessibilityScale;
+    _scalingPower = scalingPower;
+    _maxAccessibilityScale = maxAccessibilityScale ?? (maxScale * 1.3);
+    if (_maxAccessibilityScale! < maxScale) {
+      throw ArgumentError(
+        'maxAccessibilityScale ($_maxAccessibilityScale) must be >= maxScale ($maxScale).',
+      );
     }
   }
 
@@ -99,12 +110,6 @@ static bool _isScaled = false;
       );
     }
 
-    if (useMaxAccessibility && _maxAccessibilityScale == null) {
-      throw StateError(
-        'maxAccessibilityScale must be provided when useMaxAccessibility is true.',
-      );
-    }
-
     final mediaQuery = MediaQuery.of(context);
 
     // --- Capture and store screen data statically ---
@@ -112,11 +117,11 @@ static bool _isScaled = false;
     screenHeight = mediaQuery.size.height;
 
     // Scale based on width
-    final rawScaleWidth = screenWidth / _designWidth!;
+    final rawScaleWidth = pow(screenWidth / _designWidth!, _scalingPower).toDouble();
     widthScale = rawScaleWidth.clamp(_minScale, _maxScale);
 
     // Scale based on height
-    final rawScaleHeight = screenHeight / _designHeight!;
+    final rawScaleHeight = pow(screenHeight / _designHeight!, _scalingPower).toDouble();
     heightScale = rawScaleHeight.clamp(_minScale, _maxScale);
 
     // Use the min of rawScaleWidth and rawScaleHeight so that the UI elements don't overflow
@@ -127,8 +132,6 @@ static bool _isScaled = false;
     // Use a local variable for calculations within this method for clarity.
     final localScaleFactor = min(_maxScale, max(_minScale, rawScaleRadius));
 
-    // Update the static variable for external helpers to use.
-    scaleFactor = localScaleFactor;
     _isScaled = true;
 
     // System accessibility scaling
