@@ -116,12 +116,23 @@ class ResponsiveScaler {
     screenWidth = mediaQuery.size.width;
     screenHeight = mediaQuery.size.height;
 
+    // Swap design dimensions if in landscape orientation
+    final double designWidth;
+    final double designHeight;
+    if (mediaQuery.orientation == Orientation.landscape) {
+      designWidth = max(_designWidth!, _designHeight!);
+      designHeight = min(_designWidth!, _designHeight!);
+    } else {
+      designWidth = _designWidth!;
+      designHeight = _designHeight!;
+    }
+
     // Scale based on width
-    final rawScaleWidth = pow(screenWidth / _designWidth!, _scalingPower).toDouble();
+    final rawScaleWidth = pow(screenWidth / designWidth, _scalingPower).toDouble();
     widthScale = rawScaleWidth.clamp(_minScale, _maxScale);
 
     // Scale based on height
-    final rawScaleHeight = pow(screenHeight / _designHeight!, _scalingPower).toDouble();
+    final rawScaleHeight = pow(screenHeight / designHeight, _scalingPower).toDouble();
     heightScale = rawScaleHeight.clamp(_minScale, _maxScale);
 
     // Use the min of rawScaleWidth and rawScaleHeight so that the UI elements don't overflow

@@ -228,5 +228,30 @@ void main() {
       expect(ResponsiveScaler.widthScale, closeTo(1.2247, 0.001));
       expect(ResponsiveScaler.heightScale, closeTo(1.2247, 0.001));
     });
+
+    testWidgets('Landscape orientation dynamically swaps design dimensions', (tester) async {
+      ResponsiveScaler.init(
+        designWidth: 400,
+        designHeight: 800,
+        minScale: 0.1,
+        maxScale: 5.0,
+      );
+
+      setScreenSize(tester, 800, 400);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          builder: (context, child) => ResponsiveScaler.scale(
+            context: context,
+            child: child!,
+          ),
+          home: const Scaffold(),
+        ),
+      );
+
+      expect(ResponsiveScaler.widthScale, 1.0);
+      expect(ResponsiveScaler.heightScale, 1.0);
+      expect(ResponsiveScaler.radiusScale, 1.0);
+    });
   });
 }
