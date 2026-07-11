@@ -1,3 +1,10 @@
+# 1.0.2 🎉
+* **New:** Native Split-Screen & Multi-Instance support (iPad multitasking, desktop resizing, etc.) via per-window caching and an LRU eviction policy.
+* **New:** Added `scalingPower` parameter to `ResponsiveScaler.init()` to support custom non-linear scaling curves.
+* **Enhancement:** Swaps design dimensions dynamically in landscape orientation to prevent layout distortion.
+* **BREAKING:** Completely removed the deprecated `ResponsiveSpacing` class (use `.r` extension directly, e.g., `16.r`).
+* **Fixes & Refactoring:** Documented all public API members, cleaned up compiler/linter warnings, and aligned environment SDK requirements.
+
 # 1.0.1 🎉
 * Add Deprecate message in `ResponsiveSpacing` class in favor of `.r` extension (e.g., `16.r`)
 * Remove `publish_to` field from the `pubspec.yaml` file
