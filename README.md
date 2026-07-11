@@ -91,6 +91,7 @@ void main() {
     designHeight: 812, // e.g., iPhone Design Height
     minScale: 0.8,     // Optional: Minimum scale factor (default 0.8)
     maxScale: 1.4,     // Optional: Maximum scale factor (default 1.4)
+    scalingPower: 1.0, // Optional: Controls scaling curve (default 1.0)
     maxAccessibilityScale: 1.8, // Optional: Limit for system text scaling
   );
 
@@ -182,33 +183,29 @@ width: 200.wc(minValue: 100, maxValue: 300),
 height: 100.hc(minValue: 50),
 ```
 
-### 3. Responsive Spacing [DEPRECATED]
+### 3. Spacing Guidelines
 
-Use `ResponsiveSpacing` for consistent gaps between widgets.
-
-> [!WARNING]
-> **The Grid System:** Both horizontal (`w`) and vertical (`h`) spacers use the **radius (`.r`)** scaling logic. 
-> This means `hMedium` and `wMedium` return the *exact same pixel value*, creates a perfectly symmetrical visual grid.
-> RECOMMENDED to define manual numbers since this is DEPRECATED and will be removed in future versions.
-
+For spacing between widgets, use the `.r` (Radius/Shortest Side) scaling strategy directly with `SizedBox` or padding. This ensures padding, margins, and gaps remain proportional across different screen aspect ratios and orientations without distorting the visual grid.
 
 ```dart
 Column(
   children: [
     Text("Title"),
-    SizedBox(height: ResponsiveSpacing.hMedium), // Vertical gap
+    SizedBox(height: 16.r), // Standardized responsive vertical gap
     Text("Subtitle"),
   ],
 )
 ```
 
-| Constant | Description | Value  |
-|----------|-------------|-------------------|
-| `hXSmall` / `wXSmall` | Extra Small | 4.r |
-| `hSmall` / `wSmall` | Small | 8.r |
-| `hMedium` / `wMedium` | Medium | 16.r |
-| `hLarge` / `wLarge` | Large | 24.r |
-| `hXLarge` / `wXLarge` | Extra Large | 32.r |
+#### Standard Spacing Recommendations
+
+| Spacing Size | Value | Usage |
+| :--- | :--- | :--- |
+| **Extra Small** | `4.r` | Minimal gaps, tight inline spacing |
+| **Small** | `8.r` | Small margins, compact item spacing |
+| **Medium** | `16.r` | Standard layout margins, list item spacing |
+| **Large** | `24.r` | Section separation, outer container padding |
+| **Extra Large** | `32.r` | Major page sections, prominent gaps |
 
 ---
 
@@ -248,6 +245,14 @@ FinalTextScale = min(RadiusScale * SystemScale, maxAccessibilityScale)
 ```
 
 This ensures that even if a user sets their phone to "Huge Text", your app's layout won't break completely, while still respecting their need for larger text.
+
+### 5. Split-Screen & Multi-Instance Support
+Responsive Scaler features native support for multi-window and split-screen environments (such as iPad multitasking or desktop resizing). 
+
+Instead of relying solely on global static variables, the scaler maintains state for active window contexts. When multiple `ResponsiveScalerWidget`s are active:
+- Each window calculates and caches its scale factors (`WindowState`) independently.
+- Calculations update dynamically as windows are resized.
+- The most recently focused window is used to resolve global scale parameters.
 
 ---
 
