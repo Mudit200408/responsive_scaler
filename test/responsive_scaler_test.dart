@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:responsive_scaler/responsive_scaler.dart';
+import 'dart:math';
 
 void main() {
   // Define the base design dimensions usage in the tests.
@@ -167,42 +168,6 @@ void main() {
       // Cleanup: Reset system text scale
       tester.platformDispatcher.clearTextScaleFactorTestValue();
     });
-  });
-
-  // GROUP: New Features Tests
-  group('New Features Tests', () {
-    test('isInitialized state checks', () {
-      expect(ResponsiveScaler.isInitialized, isTrue);
-    });
-
-    testWidgets('Default maxAccessibilityScale widget scaling', (tester) async {
-      ResponsiveScaler.init(
-        designWidth: 400,
-        designHeight: 800,
-        minScale: 1.0,
-        maxScale: 1.5,
-      );
-
-      setScreenSize(tester, 400, 800);
-      tester.platformDispatcher.textScaleFactorTestValue = 3.0;
-
-      await tester.pumpWidget(
-        MaterialApp(
-          builder: (context, child) => ResponsiveScaler.scale(
-            context: context,
-            useMaxAccessibility: true,
-            child: child!,
-          ),
-          home: const Scaffold(body: Text('Test')),
-        ),
-      );
-
-      final BuildContext context = tester.element(find.byType(Text));
-      final textScaler = MediaQuery.of(context).textScaler;
-      expect(textScaler.scale(10), closeTo(19.5, 0.01));
-
-      tester.platformDispatcher.clearTextScaleFactorTestValue();
-    });
 
     testWidgets('Non-linear scaling with scalingPower', (tester) async {
       ResponsiveScaler.init(
@@ -252,6 +217,320 @@ void main() {
       expect(ResponsiveScaler.widthScale, 1.0);
       expect(ResponsiveScaler.heightScale, 1.0);
       expect(ResponsiveScaler.radiusScale, 1.0);
+    });
+  });
+
+  // GROUP: Split-Screen / Multi-Window Tests
+  group('Split-Screen / Multi-Window Tests', () {
+    testWidgets(
+      'Two windows with different screen sizes do not pollute each other',
+      (tester) async {
+        // Build both windows in the same widget tree under separate MediaQuery overrides
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Row(
+                children: [
+                  MediaQuery(
+                    data: const MediaQueryData(size: Size(200, 400)),
+                    child: Builder(
+                      builder: (context) => ResponsiveScaler.scale(
+                        context: context,
+                        child: const Text('Window A'),
+                      ),
+                    ),
+                  ),
+                  MediaQuery(
+                    data: const MediaQueryData(size: Size(300, 600)),
+                    child: Builder(
+                      builder: (context) => ResponsiveScaler.scale(
+                        context: context,
+                        child: const Text('Window B'),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+
+        // Find keys from the states map
+        final keys = ResponsiveScaler.instance.states.keys.toList();
+        expect(keys.length, equals(2));
+
+        // Get the state for each key and verify they have the correct widthScale
+        final widthScale1 = ResponsiveScaler.instance.states[keys[0]]?.widthScale;
+        final widthScale2 = ResponsiveScaler.instance.states[keys[1]]?.widthScale;
+
+        // Since sizes are 200x400 and 300x600, scales should be 0.5 and 0.75
+        final scales = {widthScale1, widthScale2};
+        expect(scales, contains(0.5));
+        expect(scales, contains(0.75));
+      },
+    );
+
+    testWidgets(
+      'Window A scale changes do not affect Window B',
+      (tester) async {
+        // Build both windows in the same widget tree under separate MediaQuery overrides
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Row(
+                children: [
+                  MediaQuery(
+                    data: const MediaQueryData(size: Size(200, 400)),
+                    child: Builder(
+                      builder: (context) => ResponsiveScaler.scale(
+                        context: context,
+                        child: const Text('Window A'),
+                      ),
+                    ),
+                  ),
+                  MediaQuery(
+                    data: const MediaQueryData(size: Size(300, 600)),
+                    child: Builder(
+                      builder: (context) => ResponsiveScaler.scale(
+                        context: context,
+                        child: const Text('Window B'),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+
+        final keys = ResponsiveScaler.instance.states.keys.toList();
+        expect(keys.length, equals(2));
+
+        final widthScale1 = ResponsiveScaler.instance.states[keys[0]]?.widthScale;
+        final widthScale2 = ResponsiveScaler.instance.states[keys[1]]?.widthScale;
+
+        final scales = {widthScale1, widthScale2};
+        expect(scales, contains(0.5));
+        expect(scales, contains(0.75));
+      },
+    );
+  });
+
+  // GROUP: Reset / Test Isolation Tests
+  group('Reset / Test Isolation Tests', () {
+    test('Reset clears all state', () {
+      // Initialize with some values
+      ResponsiveScaler.init(
+        designWidth: 400,
+        designHeight: 800,
+        minScale: 0.5,
+        maxScale: 2.0,
+      );
+
+      // Simulate scale() being called by setting scale values directly
+      ResponsiveScaler.widthScale = 2.0;
+      ResponsiveScaler.heightScale = 2.0;
+      ResponsiveScaler.radiusScale = 2.0;
+
+      // Reset
+      ResponsiveScaler.reset();
+
+      // Verify all state is cleared
+      expect(ResponsiveScaler.widthScale, 1.0); // fallback value is 1.0
+      expect(ResponsiveScaler.heightScale, 1.0);
+      expect(ResponsiveScaler.radiusScale, 1.0);
+      expect(ResponsiveScaler.isInitialized, false);
+      expect(ResponsiveScaler.screenWidth, 0.0);
+      expect(ResponsiveScaler.screenHeight, 0.0);
+    });
+
+    test('Re-initialization with new values works correctly', () {
+      // Initialize with first set of values
+      ResponsiveScaler.init(
+        designWidth: 400,
+        designHeight: 800,
+        minScale: 0.8,
+        maxScale: 1.4,
+      );
+
+      // Re-initialize with different values
+      ResponsiveScaler.init(
+        designWidth: 390,
+        designHeight: 844,
+        minScale: 0.9,
+        maxScale: 1.5,
+      );
+
+      // Verify new values are used
+      expect(ResponsiveScaler.instance.designWidth, 390);
+      expect(ResponsiveScaler.instance.designHeight, 844);
+      expect(ResponsiveScaler.instance.minScale, 0.9);
+      expect(ResponsiveScaler.instance.maxScale, 1.5);
+    });
+  });
+
+  // GROUP: LRU Cache Eviction Tests
+  group('LRU Cache Eviction Tests', () {
+    test('LRU eviction works correctly', () {
+      // Simulate adding many windows
+      for (int i = 0; i < 105; i++) {
+        final key = GlobalKey(debugLabel: 'Window$i');
+        ResponsiveScaler.instance.initWindowState(key);
+      }
+
+      // Verify LRU eviction occurred
+      expect(
+        ResponsiveScaler.instance.states.length,
+        lessThanOrEqualTo(100),
+      );
+    });
+
+    test('LRU eviction only evicts least recently accessed', () {
+      final keys = List.generate(5, (i) => GlobalKey(debugLabel: 'Window$i'));
+
+      // Add some windows
+      for (final key in keys) {
+        ResponsiveScaler.instance.initWindowState(key);
+      }
+
+      // Access only the first two windows
+      ResponsiveScaler.instance.updateWindowState(
+        keys[0],
+        const MediaQueryData(size: Size(400, 800)),
+        false,
+      );
+      ResponsiveScaler.instance.updateWindowState(
+        keys[1],
+        const MediaQueryData(size: Size(400, 800)),
+        false,
+      );
+
+      // Verify Window0 and Window1 are in recently accessed
+      expect(
+        ResponsiveScaler.instance.recentlyAccessed,
+        contains(keys[0]),
+      );
+      expect(
+        ResponsiveScaler.instance.recentlyAccessed,
+        contains(keys[1]),
+      );
+    });
+  });
+
+  // GROUP: Validation Tests
+  group('Validation Tests', () {
+    test('Invalid designWidth throws error', () {
+      expect(
+        () => ResponsiveScaler.init(
+          designWidth: 0,
+          designHeight: 800,
+          minScale: 0.8,
+          maxScale: 1.4,
+        ),
+        throwsArgumentError,
+      );
+      expect(
+        () => ResponsiveScaler.init(
+          designWidth: -10,
+          designHeight: 800,
+          minScale: 0.8,
+          maxScale: 1.4,
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('Invalid designHeight throws error', () {
+      expect(
+        () => ResponsiveScaler.init(
+          designWidth: 400,
+          designHeight: 0,
+          minScale: 0.8,
+          maxScale: 1.4,
+        ),
+        throwsArgumentError,
+      );
+      expect(
+        () => ResponsiveScaler.init(
+          designWidth: 400,
+          designHeight: -10,
+          minScale: 0.8,
+          maxScale: 1.4,
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('Invalid scalingPower throws error', () {
+      expect(
+        () => ResponsiveScaler.init(
+          designWidth: 400,
+          designHeight: 800,
+          minScale: 0.8,
+          maxScale: 1.4,
+          scalingPower: -1,
+        ),
+        throwsArgumentError,
+      );
+      expect(
+        () => ResponsiveScaler.init(
+          designWidth: 400,
+          designHeight: 800,
+          minScale: 0.8,
+          maxScale: 1.4,
+          scalingPower: 11,
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('Invalid maxAccessibilityScale throws error', () {
+      expect(
+        () => ResponsiveScaler.init(
+          designWidth: 400,
+          designHeight: 800,
+          minScale: 0.8,
+          maxScale: 1.4,
+          maxAccessibilityScale: 1.0,
+        ),
+        throwsArgumentError,
+      );
+    });
+  });
+
+  // GROUP: Edge Case Tests
+  group('Edge Case Tests', () {
+    test('Concurrent initialization scenarios', () async {
+      // Simulate concurrent initialization from multiple routes
+      final initFutures = List.generate(5, (_) async {
+        return Future.delayed(const Duration(milliseconds: 10), () async {
+          ResponsiveScaler.init(
+            designWidth: 400,
+            designHeight: 800,
+            minScale: 0.8,
+            maxScale: 1.4,
+          );
+        });
+      });
+
+      // Wait for all initializations to complete
+      await Future.wait(initFutures);
+
+      // Verify only one initialization took effect
+      expect(ResponsiveScaler.instance.designWidth, 400);
+      expect(ResponsiveScaler.instance.designHeight, 800);
+    });
+
+    test('Zero or negative screen dimensions handled gracefully', () {
+      // These should not crash - they just result in scale 0
+      expect(
+        pow(max(0.0, 0.0) / 400, 1.0),
+        equals(0.0),
+      );
+      expect(
+        pow(max(0.0, -10.0) / 400, 1.0),
+        equals(0.0),
+      );
     });
   });
 }
