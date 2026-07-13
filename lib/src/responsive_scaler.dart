@@ -10,7 +10,7 @@ enum ScaleType {
   height,
 
   /// Scales based on the smaller of the width or height ratios (prevents overflow).
-  radius
+  radius,
 }
 
 /// A utility class that provides automatic responsive scaling for Flutter apps.
@@ -27,33 +27,38 @@ class ResponsiveScaler {
   /// Static variables to hold screen data for global access.
   /// Returns the current screen width for the active window.
   static double get screenWidth => _instance.getWindowState().screenWidth;
-  
+
   /// Sets the screen width for the active window.
-  static set screenWidth(double val) => _instance.getWindowState().screenWidth = val;
+  static set screenWidth(double val) =>
+      _instance.getWindowState().screenWidth = val;
 
   /// Returns the current screen height for the active window.
   static double get screenHeight => _instance.getWindowState().screenHeight;
-  
+
   /// Sets the screen height for the active window.
-  static set screenHeight(double val) => _instance.getWindowState().screenHeight = val;
+  static set screenHeight(double val) =>
+      _instance.getWindowState().screenHeight = val;
 
   /// Returns the current width scale factor for the active window.
   static double get widthScale => _instance.getWindowState().widthScale;
-  
+
   /// Sets the width scale factor for the active window.
-  static set widthScale(double val) => _instance.getWindowState().widthScale = val;
+  static set widthScale(double val) =>
+      _instance.getWindowState().widthScale = val;
 
   /// Returns the current height scale factor for the active window.
   static double get heightScale => _instance.getWindowState().heightScale;
-  
+
   /// Sets the height scale factor for the active window.
-  static set heightScale(double val) => _instance.getWindowState().heightScale = val;
+  static set heightScale(double val) =>
+      _instance.getWindowState().heightScale = val;
 
   /// Returns the current radius scale factor for the active window.
   static double get radiusScale => _instance.getWindowState().radiusScale;
-  
+
   /// Sets the radius scale factor for the active window.
-  static set radiusScale(double val) => _instance.getWindowState().radiusScale = val;
+  static set radiusScale(double val) =>
+      _instance.getWindowState().radiusScale = val;
 
   /// Initializes the ResponsiveScaler with your app's design specifications.
   static void init({
@@ -273,7 +278,11 @@ class ResponsiveScalerService {
   }
 
   /// Updates the window state corresponding to the given global key using the provided media query data.
-  void updateWindowState(GlobalKey key, MediaQueryData mediaQuery, bool useMaxAccessibility) {
+  void updateWindowState(
+    GlobalKey key,
+    MediaQueryData mediaQuery,
+    bool useMaxAccessibility,
+  ) {
     final state = _states[key];
     if (state != null) {
       state._update(
@@ -310,31 +319,31 @@ class WindowState {
 
   /// The width scale factor calculated for this window.
   double get widthScale => _widthScale;
-  
+
   /// Sets the width scale factor for this window.
   set widthScale(double val) => _widthScale = val;
 
   /// The height scale factor calculated for this window.
   double get heightScale => _heightScale;
-  
+
   /// Sets the height scale factor for this window.
   set heightScale(double val) => _heightScale = val;
 
   /// The radius scale factor calculated for this window.
   double get radiusScale => _radiusScale;
-  
+
   /// Sets the radius scale factor for this window.
   set radiusScale(double val) => _radiusScale = val;
 
   /// The screen width of this window.
   double get screenWidth => _screenWidth;
-  
+
   /// Sets the screen width of this window.
   set screenWidth(double val) => _screenWidth = val;
 
   /// The screen height of this window.
   double get screenHeight => _screenHeight;
-  
+
   /// Sets the screen height of this window.
   set screenHeight(double val) => _screenHeight = val;
 
@@ -362,10 +371,16 @@ class WindowState {
       designHeight = service.designHeight!;
     }
 
-    final rawScaleWidth = pow(max(0.0, _screenWidth) / designWidth, service.scalingPower).toDouble();
+    final rawScaleWidth = pow(
+      max(0.0, _screenWidth) / designWidth,
+      service.scalingPower,
+    ).toDouble();
     _widthScale = rawScaleWidth.clamp(service.minScale, service.maxScale);
 
-    final rawScaleHeight = pow(max(0.0, _screenHeight) / designHeight, service.scalingPower).toDouble();
+    final rawScaleHeight = pow(
+      max(0.0, _screenHeight) / designHeight,
+      service.scalingPower,
+    ).toDouble();
     _heightScale = rawScaleHeight.clamp(service.minScale, service.maxScale);
 
     final rawScaleRadius = min(rawScaleWidth, rawScaleHeight);
@@ -420,7 +435,11 @@ class _ResponsiveScalerWidgetState extends State<ResponsiveScalerWidget> {
 
         // Update active key and trigger scaling calculation
         ResponsiveScaler.instance.activeKey = _key;
-        ResponsiveScaler.instance.updateWindowState(_key, mq, widget.useMaxAccessibility);
+        ResponsiveScaler.instance.updateWindowState(
+          _key,
+          mq,
+          widget.useMaxAccessibility,
+        );
 
         final state = ResponsiveScaler.instance.getWindowState();
         final systemScale = mq.textScaler.scale(1.0);
@@ -431,7 +450,8 @@ class _ResponsiveScalerWidgetState extends State<ResponsiveScalerWidget> {
           textScaler = TextScaler.linear(combinedScale);
         } else {
           final clampedScale = min(
-            ResponsiveScaler.instance.maxAccessibilityScale ?? (state.radiusScale * 1.3),
+            ResponsiveScaler.instance.maxAccessibilityScale ??
+                (state.radiusScale * 1.3),
             combinedScale,
           );
           textScaler = TextScaler.linear(clampedScale);

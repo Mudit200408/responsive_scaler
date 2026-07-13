@@ -43,18 +43,17 @@ void main() {
   // GROUP: Core Math Tests
   // These tests verify that basic scaling calculations work as expected based on screen size.
   group('Core Math Tests', () {
-    testWidgets('Verify scaling factors at design size (Scale = 1.0)',
-        (tester) async {
+    testWidgets('Verify scaling factors at design size (Scale = 1.0)', (
+      tester,
+    ) async {
       // 1. Arrange: Set screen size to exactly match the design dimensions (400x800)
       setScreenSize(tester, 400, 800);
 
       // 2. Act: Build the widget tree with ResponsiveScaler
       await tester.pumpWidget(
         MaterialApp(
-          builder: (context, child) => ResponsiveScaler.scale(
-            context: context,
-            child: child!,
-          ),
+          builder: (context, child) =>
+              ResponsiveScaler.scale(context: context, child: child!),
           home: const Scaffold(), // Simple placeholder home
         ),
       );
@@ -66,18 +65,17 @@ void main() {
       expect(100.w, 100.0);
     });
 
-    testWidgets('Verify scaling on smaller screen (Scale = 0.5)',
-        (tester) async {
+    testWidgets('Verify scaling on smaller screen (Scale = 0.5)', (
+      tester,
+    ) async {
       // 1. Arrange: Set screen size to half the width (200 vs 400)
       setScreenSize(tester, 200, 400);
 
       // 2. Act: Build the widget tree
       await tester.pumpWidget(
         MaterialApp(
-          builder: (context, child) => ResponsiveScaler.scale(
-            context: context,
-            child: child!,
-          ),
+          builder: (context, child) =>
+              ResponsiveScaler.scale(context: context, child: child!),
           home: const Scaffold(),
         ),
       );
@@ -99,10 +97,8 @@ void main() {
       // 2. Act: Build the widget tree
       await tester.pumpWidget(
         MaterialApp(
-          builder: (context, child) => ResponsiveScaler.scale(
-            context: context,
-            child: child!,
-          ),
+          builder: (context, child) =>
+              ResponsiveScaler.scale(context: context, child: child!),
           home: const Scaffold(),
         ),
       );
@@ -182,10 +178,8 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          builder: (context, child) => ResponsiveScaler.scale(
-            context: context,
-            child: child!,
-          ),
+          builder: (context, child) =>
+              ResponsiveScaler.scale(context: context, child: child!),
           home: const Scaffold(),
         ),
       );
@@ -194,7 +188,9 @@ void main() {
       expect(ResponsiveScaler.heightScale, closeTo(1.2247, 0.001));
     });
 
-    testWidgets('Landscape orientation dynamically swaps design dimensions', (tester) async {
+    testWidgets('Landscape orientation dynamically swaps design dimensions', (
+      tester,
+    ) async {
       ResponsiveScaler.init(
         designWidth: 400,
         designHeight: 800,
@@ -206,10 +202,8 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          builder: (context, child) => ResponsiveScaler.scale(
-            context: context,
-            child: child!,
-          ),
+          builder: (context, child) =>
+              ResponsiveScaler.scale(context: context, child: child!),
           home: const Scaffold(),
         ),
       );
@@ -260,8 +254,10 @@ void main() {
         expect(keys.length, equals(2));
 
         // Get the state for each key and verify they have the correct widthScale
-        final widthScale1 = ResponsiveScaler.instance.states[keys[0]]?.widthScale;
-        final widthScale2 = ResponsiveScaler.instance.states[keys[1]]?.widthScale;
+        final widthScale1 =
+            ResponsiveScaler.instance.states[keys[0]]?.widthScale;
+        final widthScale2 =
+            ResponsiveScaler.instance.states[keys[1]]?.widthScale;
 
         // Since sizes are 200x400 and 300x600, scales should be 0.5 and 0.75
         final scales = {widthScale1, widthScale2};
@@ -270,50 +266,49 @@ void main() {
       },
     );
 
-    testWidgets(
-      'Window A scale changes do not affect Window B',
-      (tester) async {
-        // Build both windows in the same widget tree under separate MediaQuery overrides
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: Row(
-                children: [
-                  MediaQuery(
-                    data: const MediaQueryData(size: Size(200, 400)),
-                    child: Builder(
-                      builder: (context) => ResponsiveScaler.scale(
-                        context: context,
-                        child: const Text('Window A'),
-                      ),
+    testWidgets('Window A scale changes do not affect Window B', (
+      tester,
+    ) async {
+      // Build both windows in the same widget tree under separate MediaQuery overrides
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Row(
+              children: [
+                MediaQuery(
+                  data: const MediaQueryData(size: Size(200, 400)),
+                  child: Builder(
+                    builder: (context) => ResponsiveScaler.scale(
+                      context: context,
+                      child: const Text('Window A'),
                     ),
                   ),
-                  MediaQuery(
-                    data: const MediaQueryData(size: Size(300, 600)),
-                    child: Builder(
-                      builder: (context) => ResponsiveScaler.scale(
-                        context: context,
-                        child: const Text('Window B'),
-                      ),
+                ),
+                MediaQuery(
+                  data: const MediaQueryData(size: Size(300, 600)),
+                  child: Builder(
+                    builder: (context) => ResponsiveScaler.scale(
+                      context: context,
+                      child: const Text('Window B'),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        );
+        ),
+      );
 
-        final keys = ResponsiveScaler.instance.states.keys.toList();
-        expect(keys.length, equals(2));
+      final keys = ResponsiveScaler.instance.states.keys.toList();
+      expect(keys.length, equals(2));
 
-        final widthScale1 = ResponsiveScaler.instance.states[keys[0]]?.widthScale;
-        final widthScale2 = ResponsiveScaler.instance.states[keys[1]]?.widthScale;
+      final widthScale1 = ResponsiveScaler.instance.states[keys[0]]?.widthScale;
+      final widthScale2 = ResponsiveScaler.instance.states[keys[1]]?.widthScale;
 
-        final scales = {widthScale1, widthScale2};
-        expect(scales, contains(0.5));
-        expect(scales, contains(0.75));
-      },
-    );
+      final scales = {widthScale1, widthScale2};
+      expect(scales, contains(0.5));
+      expect(scales, contains(0.75));
+    });
   });
 
   // GROUP: Reset / Test Isolation Tests
@@ -379,10 +374,7 @@ void main() {
       }
 
       // Verify LRU eviction occurred
-      expect(
-        ResponsiveScaler.instance.states.length,
-        lessThanOrEqualTo(100),
-      );
+      expect(ResponsiveScaler.instance.states.length, lessThanOrEqualTo(100));
     });
 
     test('LRU eviction only evicts least recently accessed', () {
@@ -406,14 +398,8 @@ void main() {
       );
 
       // Verify Window0 and Window1 are in recently accessed
-      expect(
-        ResponsiveScaler.instance.recentlyAccessed,
-        contains(keys[0]),
-      );
-      expect(
-        ResponsiveScaler.instance.recentlyAccessed,
-        contains(keys[1]),
-      );
+      expect(ResponsiveScaler.instance.recentlyAccessed, contains(keys[0]));
+      expect(ResponsiveScaler.instance.recentlyAccessed, contains(keys[1]));
     });
   });
 
@@ -523,14 +509,8 @@ void main() {
 
     test('Zero or negative screen dimensions handled gracefully', () {
       // These should not crash - they just result in scale 0
-      expect(
-        pow(max(0.0, 0.0) / 400, 1.0),
-        equals(0.0),
-      );
-      expect(
-        pow(max(0.0, -10.0) / 400, 1.0),
-        equals(0.0),
-      );
+      expect(pow(max(0.0, 0.0) / 400, 1.0), equals(0.0));
+      expect(pow(max(0.0, -10.0) / 400, 1.0), equals(0.0));
     });
   });
 }
